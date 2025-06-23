@@ -1,8 +1,9 @@
+"use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { client } from "../supabase-client";
 
 interface UserContextType {
-  user: any;
+  user: any | null;
   loading: boolean;
 }
 
@@ -12,7 +13,7 @@ export const UserContext = createContext<UserContextType>({
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,12 +22,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    const { data: listener } = client.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const { data: listener } = client.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     return () => {
       listener?.subscription.unsubscribe();
@@ -41,4 +40,3 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useUser = () => useContext(UserContext);
-

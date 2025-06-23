@@ -171,21 +171,19 @@ export default function Login() {
             <div className="flex rounded-lg bg-gray-100 p-1 mb-8 shadow-sm">
               <button
                 onClick={() => setActiveTab("login")}
-                className={`flex-1 py-2 px-4 text-center font-semibold rounded-lg transition-all duration-300 ${
-                  activeTab === "login"
-                    ? "bg-white text-blue-600 shadow"
-                    : "text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`flex-1 py-2 px-4 text-center font-semibold rounded-lg transition-all duration-300 ${activeTab === "login"
+                  ? "bg-white text-blue-600 shadow"
+                  : "text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Iniciar sesión
               </button>
               <button
                 onClick={() => setActiveTab("register")}
-                className={`flex-1 py-2 px-4 text-center font-semibold rounded-lg transition-all duration-300 ${
-                  activeTab === "register"
-                    ? "bg-white text-blue-600 shadow"
-                    : "text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`flex-1 py-2 px-4 text-center font-semibold rounded-lg transition-all duration-300 ${activeTab === "register"
+                  ? "bg-white text-blue-600 shadow"
+                  : "text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Registrarse
               </button>

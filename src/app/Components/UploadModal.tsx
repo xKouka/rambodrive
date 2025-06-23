@@ -13,32 +13,32 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
 
-const subirArchivo = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  const input = e.currentTarget.elements.namedItem("archivo") as HTMLInputElement;
-  const archivo = input?.files?.[0];
+  const subirArchivo = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const input = e.currentTarget.elements.namedItem("archivo") as HTMLInputElement;
+    const archivo = input?.files?.[0];
 
-  if (!archivo) return;
+    if (!archivo) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  const nombreLimpio = archivo.name.replace(/\s+/g, "_");
-  const nombre = `${Date.now()}-${nombreLimpio}`;
+    const nombreLimpio = archivo.name.replace(/\s+/g, "_");
+    const nombre = `${Date.now()}-${nombreLimpio}`;
 
-  const { error } = await client.storage.from("rambodrive").upload(nombre, archivo, {
-    upsert: true, // permite sobrescribir si ya existe
-  });
+    const { error } = await client.storage.from("rambodrive").upload(nombre, archivo, {
+      upsert: true, // permite sobrescribir si ya existe
+    });
 
-  setLoading(false);
+    setLoading(false);
 
-  if (error) {
-    console.error("Error Supabase:", error);
-    setMensaje("❌ Error al subir archivo.");
-  } else {
-    setMensaje("✅ Archivo subido correctamente.");
-    e.currentTarget.reset();
-  }
-};
+    if (error) {
+      console.error("Error Supabase:", error);
+      setMensaje("❌ Error al subir archivo.");
+    } else {
+      setMensaje("✅ Archivo subido correctamente.");
+      e.currentTarget.reset();
+    }
+  };
 
 
   if (!isOpen) return null;

@@ -7,8 +7,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactNode {
   return (
-      <div className="font-poppins">
-                  {children}
-      </div>
+    <div className="font-poppins">
+      {children}
+    </div>
   );
 }
