@@ -1,7 +1,7 @@
 // src/app/Components/UploadModal.tsx
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Importa useEffect
 import { client } from "../supabase-client";
 
 interface UploadModalProps {
@@ -12,20 +12,48 @@ interface UploadModalProps {
 export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null); // Nuevo estado para almacenar el email del usuario
+
+  // Usa useEffect para obtener la sesión del usuario cuando el modal se abre
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { user } } = await client.auth.getUser();
+      if (user && user.email) {
+        setUserEmail(user.email);
+      } else {
+        console.error("No hay usuario autenticado o el email no está disponible.");
+      }
+    };
+
+    if (isOpen) {
+      getSession();
+    }
+  }, [isOpen]);
 
   const subirArchivo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!userEmail) {
+      setMensaje("❌ No se pudo obtener el correo del usuario para subir el archivo.");
+      return;
+    }
+
     const input = e.currentTarget.elements.namedItem("archivo") as HTMLInputElement;
     const archivo = input?.files?.[0];
 
-    if (!archivo) return;
+    if (!archivo) {
+      setMensaje("Por favor, selecciona un archivo.");
+      return;
+    }
 
     setLoading(true);
+    setMensaje(""); // Limpiar mensaje anterior
 
     const nombreLimpio = archivo.name.replace(/\s+/g, "_");
-    const nombre = `${Date.now()}-${nombreLimpio}`;
+    // Construye la ruta del archivo incluyendo la "carpeta" del usuario
+    const filePath = `${userEmail}/${Date.now()}-${nombreLimpio}`;
 
-    const { error } = await client.storage.from("rambodrive").upload(nombre, archivo, {
+    const { error } = await client.storage.from("rambodrive").upload(filePath, archivo, {
       upsert: true, // permite sobrescribir si ya existe
     });
 
@@ -33,13 +61,12 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
 
     if (error) {
       console.error("Error Supabase:", error);
-      setMensaje("❌ Error al subir archivo.");
+      setMensaje(`❌ Error al subir archivo: ${error.message}`); // Muestra el mensaje de error de Supabase
     } else {
       setMensaje("✅ Archivo subido correctamente.");
-      e.currentTarget.reset();
+      e.currentTarget.reset(); // Limpia el campo de selección de archivo
     }
   };
-
 
   if (!isOpen) return null;
 
@@ -63,7 +90,7 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
           />
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !userEmail} // Deshabilita si no hay email o si está cargando
             className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white w-full"
           >
             {loading ? "Subiendo..." : "Subir Archivo"}
@@ -71,6 +98,7 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
         </form>
 
         {mensaje && <p className="mt-4 text-green-400">{mensaje}</p>}
+        {!userEmail && isOpen && <p className="mt-4 text-yellow-500">Cargando datos del usuario...</p>}
       </div>
     </div>
   );
