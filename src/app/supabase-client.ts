@@ -2,48 +2,48 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const client = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    auth: {
-      persistSession: true,
-      storage: localStorage,
-    },
-  }
-);
+// Cliente que se puede usar con persistencia en cliente
+export const client = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
+  },
+});
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Cliente auxiliar para funciones generales (sin configuración personalizada)
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-async function checkLoginStatus() {
-  const { data: { session }, error } = await supabase.auth.getSession()
+// Verificar sesión actual
+export async function checkLoginStatus() {
+  const { data: { session }, error } = await supabase.auth.getSession();
 
   if (error) {
-    console.error('Error al obtener la sesión:', error.message)
-    return
+    console.error('Error al obtener la sesión:', error.message);
+    return;
   }
 
   if (session) {
-    console.log('El usuario ha iniciado sesión:', session.user)
-    // Puedes acceder a la información del usuario con session.user
+    console.log('El usuario ha iniciado sesión:', session.user);
   } else {
-    console.log('El usuario no ha iniciado sesión.')
+    console.log('El usuario no ha iniciado sesión.');
   }
 }
 
-async function signOut() {
-  const { error } = await supabase.auth.signOut()
+// Cerrar sesión
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
 
   if (error) {
-    console.error('Error al cerrar sesión:', error.message)
+    console.error('Error al cerrar sesión:', error.message);
   } else {
-    console.log('Sesión cerrada exitosamente.')
+    console.log('Sesión cerrada exitosamente.');
   }
 }
 
-checkLoginStatus()
-
+// Solo ejecutar en cliente
+if (typeof window !== 'undefined') {
+  checkLoginStatus();
+}

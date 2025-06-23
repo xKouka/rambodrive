@@ -1,10 +1,10 @@
 "use client";
-import dynamic from 'next/dynamic'
+
 import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { useUser } from '../contexts/UserContext';
 import { useRouter } from 'next/navigation'
-import RecentFiles from '../Components/RecentFiles';
+import FolderExplorer from '../Components/FolderExplore';   
 import AllFilesTable from '../Components/AllFiles';
 import DashboardHeader from '../Components/DashboardHeader';
 import Sidebar from '../Components/Sidebar';
@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
                     {/* Área de Contenido Principal */}
                     <div className="ml-64 flex-grow p-6"> {/* ml-64 para dejar espacio a la sidebar fija */}
-                        <RecentFiles />
+                        <FolderExplorer />
                         <AllFilesTable />
                     </div>
                 </div>
