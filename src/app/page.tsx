@@ -22,12 +22,14 @@ export default function Home() {
                 fácil de usar para todos tus documentos importantes.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <button
-                  id="startFreeBtn"
-                  className="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-colors"
-                >
-                  Comenzar gratis
-                </button>
+                <a href="/Login">
+                  <button
+                    id="startFreeBtn"
+                    className="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Comenzar gratis
+                  </button>
+                </a>
               </div>
             </div>
             <div className="md:w-1/2 md:pl-10">
@@ -538,9 +540,11 @@ export default function Home() {
               Únete a miles de usuarios que confían en RamboDrive para mantener
               sus datos seguros y accesibles.
             </p>
-            <button className="bg-blue-500 text-white font-semibold px-8 py-4 rounded-lg shadow-xl hover:bg-blue-600 transition-colors text-lg">
-              Empieza ahora - ¡Es gratis!
-            </button>
+            <a href="/Login">
+              <button className="bg-blue-500 text-white font-semibold px-8 py-4 rounded-lg shadow-xl hover:bg-blue-600 transition-colors text-lg">
+                Empieza ahora - ¡Es gratis!
+              </button>
+            </a>
           </div>
         </section>
       </section>

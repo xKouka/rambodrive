@@ -13,12 +13,9 @@ export const client = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Cliente auxiliar para funciones generales (sin configuración personalizada)
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // Verificar sesión actual
 export async function checkLoginStatus() {
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { session }, error } = await client.auth.getSession();
 
   if (error) {
     console.error('Error al obtener la sesión:', error.message);
@@ -34,7 +31,7 @@ export async function checkLoginStatus() {
 
 // Cerrar sesión
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
+  const { error } = await client.auth.signOut();
 
   if (error) {
     console.error('Error al cerrar sesión:', error.message);
@@ -43,7 +40,4 @@ export async function signOut() {
   }
 }
 
-// Solo ejecutar en cliente
-if (typeof window !== 'undefined') {
-  checkLoginStatus();
-}
+// checkLoginStatus();

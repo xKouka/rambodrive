@@ -50,21 +50,20 @@ export default function UploadModal({ isOpen, onClose }: UploadModalProps) {
     setMensaje(""); // Limpiar mensaje anterior
 
     const nombreLimpio = archivo.name.replace(/\s+/g, "_");
-    // Construye la ruta del archivo incluyendo la "carpeta" del usuario
     const filePath = `${userEmail}/${Date.now()}-${nombreLimpio}`;
 
     const { error } = await client.storage.from("rambodrive").upload(filePath, archivo, {
-      upsert: true, // permite sobrescribir si ya existe
+      upsert: true,
     });
 
     setLoading(false);
 
     if (error) {
       console.error("Error Supabase:", error);
-      setMensaje(`❌ Error al subir archivo: ${error.message}`); // Muestra el mensaje de error de Supabase
+      setMensaje(`❌ Error al subir archivo: ${error.message}`);
     } else {
       setMensaje("✅ Archivo subido correctamente.");
-      e.currentTarget.reset(); // Limpia el campo de selección de archivo
+      e.currentTarget.reset();
     }
   };
 

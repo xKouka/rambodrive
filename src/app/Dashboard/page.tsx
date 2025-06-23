@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import Head from 'next/head';
 import { useUser } from '../contexts/UserContext';
 import { useRouter } from 'next/navigation'
-import FolderExplorer from '../Components/FolderExplore';   
+import FolderExplorer from '../Components/FolderExplore';
 import AllFilesTable from '../Components/AllFiles';
 import DashboardHeader from '../Components/DashboardHeader';
 import Sidebar from '../Components/Sidebar';
@@ -27,11 +26,6 @@ export default function DashboardPage() {
     return (
         <ClientLayout>
             <div className="gradient-bg min-h-screen">
-                <Head>
-                    <title>RamboDrive - Mi Almacenamiento</title>
-                    <meta name="description" content="Gestiona tus archivos en la nube con RamboDrive." />
-                    <link rel="icon" href="/favicon.ico" />
-                </Head>
 
                 {/* Encabezado */}
                 <DashboardHeader />

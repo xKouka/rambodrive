@@ -1,6 +1,7 @@
 // app/layout.tsx
 import "./globals.css";
 import { UserProvider } from "./contexts/UserContext";
+import Head from "next/head";
 
 export default function RootLayout({
   children,
@@ -9,6 +10,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <Head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </Head>
       <body>
         <UserProvider>
           {children}
