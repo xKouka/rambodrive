@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { client } from "../supabase-client";
 import { useUser } from "../contexts/UserContext";
 
@@ -13,6 +13,27 @@ interface FileRow {
   type: "doc" | "excel" | "pdf" | "ppt";
 }
 
+// --- Mover getFileType y formatBytes FUERA del componente ---
+// Son funciones puras y no dependen del estado o props del componente.
+const getFileType = (fileName: string): "doc" | "excel" | "pdf" | "ppt" => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  if (ext === "doc" || ext === "docx") return "doc";
+  if (ext === "xls" || ext === "xlsx") return "excel";
+  if (ext === "pdf") return "pdf";
+  if (ext === "ppt" || ext === "pptx") return "ppt";
+  return "doc";
+};
+
+const formatBytes = (bytes: number, decimals = 2) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+};
+// --- Fin de funciones auxiliares externas ---
+
 export default function AllFilesTable() {
   const { user } = useUser();
   const [allFiles, setAllFiles] = useState<FileRow[]>([]);
@@ -20,8 +41,11 @@ export default function AllFilesTable() {
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const fetchFiles = async () => {
-    if (!user?.email) return;
+  const fetchFiles = useCallback(async () => {
+    if (!user?.email) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
 
     const { data, error } = await client.storage
@@ -36,25 +60,25 @@ export default function AllFilesTable() {
 
     const files =
       data
-        ?.filter((file) => file.metadata) // solo archivos
+        ?.filter((file) => file.metadata)
         .map((file, index) => ({
           id: index,
           name: file.name,
-          owner: user.email,
+          owner: user.email || "Usuario Desconocido", // Tu corrección anterior
           modified: new Date(
             file.updated_at || Date.now()
           ).toLocaleDateString(),
-          size: formatBytes(file.metadata?.size || 0),
-          type: getFileType(file.name),
+          size: formatBytes(file.metadata?.size || 0), // Ahora accesible
+          type: getFileType(file.name), // Ahora accesible
         })) || [];
 
     setAllFiles(files);
     setLoading(false);
-  };
+  }, [user]); // No necesitas incluir `formatBytes` ni `getFileType` aquí si están fuera del componente
 
   useEffect(() => {
     fetchFiles();
-  }, [user]);
+  }, [user, fetchFiles]); // `fetchFiles` es una dependencia estable
 
   // Cierra el menú contextual al hacer clic fuera
   useEffect(() => {
@@ -68,7 +92,7 @@ export default function AllFilesTable() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, []); // Sin dependencias reactivas aquí
 
   const handleDelete = async (fileName: string) => {
     if (!user?.email) return;
@@ -102,25 +126,7 @@ export default function AllFilesTable() {
     setMenuOpen(null);
   };
 
-  const getFileType = (fileName: string): "doc" | "excel" | "pdf" | "ppt" => {
-    const ext = fileName.split(".").pop()?.toLowerCase();
-    if (ext === "doc" || ext === "docx") return "doc";
-    if (ext === "xls" || ext === "xlsx") return "excel";
-    if (ext === "pdf") return "pdf";
-    if (ext === "ppt" || ext === "pptx") return "ppt";
-    return "doc";
-  };
-
-  const formatBytes = (bytes: number, decimals = 2) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  };
-
-  const getFileIcon = (type: string) => {
+  const getFileIcon = (type: string) => { // Esta función SÍ necesita quedarse aquí o ser `useCallback`
     const iconProps = "h-5 w-5 mr-3";
     const icons: { [key: string]: string } = {
       doc: "text-blue-600",
@@ -152,7 +158,6 @@ export default function AllFilesTable() {
         Todos los archivos
       </h2>
       <div className="bg-white rounded-xs shadow relative">
-
         {loading ? (
           <p className="text-center py-4 text-gray-600">Cargando archivos...</p>
         ) : (
@@ -220,7 +225,7 @@ export default function AllFilesTable() {
                     {menuOpen === file.id && (
                       <div
                         ref={menuRef}
-                        className="absolute  right-0 top-full mt-2 w-36 bg-white border border-gray-200 rounded-sm shadow-lg z-50 flex flex-col"
+                        className="absolute right-0 top-full mt-2 w-36 bg-white border border-gray-200 rounded-sm shadow-lg z-50 flex flex-col"
                       >
                         <button
                           onClick={() => handleDownload(file.name)}

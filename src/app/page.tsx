@@ -512,7 +512,7 @@ export default function Home() {
               </h3>
               <p className="text-gray-400">
                 Para compartir un archivo, selecciona el archivo, haz clic en
-                "Compartir" y podrás generar un enlace seguro con opciones de
+                Compartir y podrás generar un enlace seguro con opciones de
                 contraseña o fecha de caducidad.
               </p>
             </div>

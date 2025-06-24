@@ -45,6 +45,7 @@ export default function Login() {
           last_name: lastName,
         });
       }
+      window.location.href='/Login';
     }
   };
 

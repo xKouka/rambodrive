@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { client } from '../supabase-client';
 import { useUser } from '../contexts/UserContext';
+import { FileObject } from '@supabase/storage-js';
 
 function FolderCard({ name, onClick }: { name: string, onClick: () => void }) {
     return (
@@ -17,7 +18,7 @@ function FolderCard({ name, onClick }: { name: string, onClick: () => void }) {
 
 function FolderViewer({ folder, onBack }: { folder: string, onBack: () => void }) {
     const { user } = useUser();
-    const [files, setFiles] = useState<any[]>([]);
+    const [files, setFiles] = useState<FileObject[]>([]);
     const [menuOpen, setMenuOpen] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
 

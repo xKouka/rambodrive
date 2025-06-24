@@ -1,9 +1,10 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { client } from "../supabase-client";
+import { User } from '@supabase/supabase-js';
 
 interface UserContextType {
-  user: any | null;
+  user: User | null;
   loading: boolean;
 }
 
@@ -13,7 +14,7 @@ export const UserContext = createContext<UserContextType>({
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
