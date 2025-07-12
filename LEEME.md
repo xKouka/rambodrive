@@ -87,7 +87,7 @@ Se las dejo a ustedes
 # 🔐 Seguridad
 Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
 
-Ejemplo básico de política:
+-- Ejemplo básico de política:
 sql
 
  CREATE POLICY "Solo dueño puede leer" ON files
