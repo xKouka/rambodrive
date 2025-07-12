@@ -1,49 +1,52 @@
-🗂️ RamboDrive
-📘 Descripción
-RamboDrive es una aplicación web tipo “cloud drive” desarrollada con tecnologías modernas como Next.js y Supabase. Permite a los usuarios registrarse, subir archivos, organizarlos por carpetas y gestionarlos desde una interfaz minimalista. El backend sin servidor se basa completamente en servicios de Supabase: autenticación, almacenamiento, y base de datos PostgreSQL con reglas RLS.
+1. Descripción
 
-🚀 Tecnologías utilizadas
-⚛️ Next.js 13+ – Framework de React con App Router.
+# 🗂️ RamboDrive
 
-🟢 Supabase – Base de datos, autenticación y almacenamiento.
+**RamboDrive** es una aplicación web estilo "cloud drive" desarrollada con tecnologías modernas como **Next.js** y **Supabase**. Permite a los usuarios autenticarse, subir, organizar y gestionar archivos en la nube a través de una interfaz intuitiva. Utiliza Supabase como backend sin servidor para autenticación, base de datos y almacenamiento.
 
-📦 supabase-js / @supabase/ssr – Cliente para manejar Supabase desde frontend y backend.
+---
 
-🎨 Tailwind CSS – Para estilos rápidos (si está presente).
+## 🚀 Tecnologías utilizadas
 
-💡 TypeScript – Tipado moderno (si se usa).
+- ⚛️ [Next.js](https://nextjs.org/) – Framework basado en React (App Router, SSR).
+- 🟢 [Supabase](https://supabase.io/) – Backend como servicio (Auth, Storage, PostgreSQL).
+- 💅 Tailwind CSS – (si está implementado) para estilos utilitarios.
+- 📦 `@supabase/supabase-js`, `@supabase/ssr` – SDKs para interactuar con Supabase.
+- ☁️ Vercel / Netlify – (opcional) para despliegue.
 
-🖼️ Captura de pantalla / Demo
-md
-Copiar
-Editar
-![Captura del explorador de archivos](./public/preview-drive-ui.png)
-(Agrega aquí una imagen real de la UI o un link a una demo en línea si existe).
+---
 
-📦 Instalación
-1. Clonar el repositorio
-bash
-Copiar
-Editar
+## 📸 Captura de pantalla
+
+<!-- Puedes subir tu propia imagen a /public y actualizar este enlace -->
+![Vista del explorador de archivos](./public/preview-drive-ui.png)
+
+---
+
+## 📦 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
 git clone https://github.com/xKouka/rambodrive.git
 cd rambodrive
+```
 2. Instalar dependencias
-bash
-Copiar
-Editar
+
+```bash
 npm install
+```
 3. Crear archivo .env.local
 env
-Copiar
-Editar
+
 NEXT_PUBLIC_SUPABASE_URL=tu_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima
+
 4. Ejecutar en desarrollo
-bash
-Copiar
-Editar
+
+```bash
 npm run dev
-Abre http://localhost:3000 para ver el proyecto en tu navegador.
+```
 
 ⚙️ Configuración de Supabase
 Requisitos:
@@ -58,10 +61,7 @@ Activar Row Level Security (RLS) para las tablas con políticas que limiten el a
 (Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
 
 📁 Estructura del proyecto
-csharp
-Copiar
-Editar
-rambodrive/
+ rambodrive/
 ├── app/                    # Rutas de Next.js (App Router)
 │   ├── drive/              # Página principal tipo explorador
 │   └── upload/             # Página para subir archivos
@@ -73,6 +73,7 @@ rambodrive/
 ├── .env.local.example      # Variables de entorno
 ├── schema.sql              # Estructura de base de datos
 └── README.md
+
 🎯 Funcionalidades principales
 ✅ Registro e inicio de sesión
 
@@ -90,12 +91,11 @@ rambodrive/
 Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
 
 Ejemplo básico de política:
-
 sql
-Copiar
-Editar
+
 CREATE POLICY "Solo dueño puede leer" ON files
 FOR SELECT USING (auth.uid() = user_id);
+
 ☁️ Despliegue
 Puedes desplegar el proyecto en:
 
@@ -124,7 +124,9 @@ Haz tus cambios y pruebas.
 
 Abre un Pull Request explicando tus mejoras.
 
-También puedes colaborar traduciendo la documentación para otros idiomas (por ejemplo, LEEME.md en español).
-
 📝 Licencia
 Este proyecto está licenciado bajo la licencia MIT.
+
+👤 Autor
+@xKouka – Autor del repositorio original.
+
