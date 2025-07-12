@@ -61,8 +61,10 @@ Activar Row Level Security (RLS) para las tablas con políticas que limiten el a
 
 (Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
 
-📁 Estructura del proyecto
- rambodrive/
+---
+
+# 📁 Estructura del proyecto
+rambodrive/
 ├── app/                    # Rutas de Next.js (App Router)
 │   ├── drive/              # Página principal tipo explorador
 │   └── upload/             # Página para subir archivos
@@ -75,7 +77,9 @@ Activar Row Level Security (RLS) para las tablas con políticas que limiten el a
 ├── schema.sql              # Estructura de base de datos
 └── README.md
 
-🎯 Funcionalidades principales
+---
+
+# 🎯 Funcionalidades principales
 ✅ Registro e inicio de sesión
 
 ✅ Subida de archivos
@@ -88,7 +92,9 @@ Activar Row Level Security (RLS) para las tablas con políticas que limiten el a
 
 🚧 Compartición de enlaces públicos (en desarrollo)
 
-🔐 Seguridad
+---
+
+#🔐 Seguridad
 Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
 
 Ejemplo básico de política:
@@ -97,37 +103,47 @@ sql
 CREATE POLICY "Solo dueño puede leer" ON files
 FOR SELECT USING (auth.uid() = user_id);
 
-☁️ Despliegue
+---
+
+#☁️ Despliegue
 Puedes desplegar el proyecto en:
 
-Vercel
+- Vercel
 
-Netlify
+- Netlify
 
-Pasos:
+#Pasos:
 
-Sube el repo.
+- Sube el repo.
 
-Configura las variables de entorno en el panel del host.
+- Configura las variables de entorno en el panel del host.
 
-Activa RLS y crea tablas en Supabase.
+- Activa RLS y crea tablas en Supabase.
 
-Conecta bucket de almacenamiento.
+- Conecta bucket de almacenamiento.
 
-🤝 Contribuciones
+---
+
+#🤝 Contribuciones
+
 ¿Quieres ayudar? Puedes contribuir así:
 
-Haz un fork del proyecto.
+-- Haz un fork del proyecto.
 
-Crea una nueva rama.
+-- Crea una nueva rama.
 
-Haz tus cambios y pruebas.
+-- Haz tus cambios y pruebas.
 
-Abre un Pull Request explicando tus mejoras.
+-- Abre un Pull Request explicando tus mejoras.
 
-📝 Licencia
+---
+
+#📝 Licencia
 Este proyecto está licenciado bajo la licencia MIT.
 
-👤 Autor
+---
+
+#👤 Autor
 @xKouka – Autor del repositorio original.
 
+---
