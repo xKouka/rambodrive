@@ -94,7 +94,7 @@ rambodrive/
 
 ---
 
-#🔐 Seguridad
+# 🔐 Seguridad
 Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
 
 Ejemplo básico de política:
@@ -105,7 +105,7 @@ FOR SELECT USING (auth.uid() = user_id);
 
 ---
 
-#☁️ Despliegue
+# ☁️ Despliegue
 Puedes desplegar el proyecto en:
 
 - Vercel
@@ -124,7 +124,7 @@ Puedes desplegar el proyecto en:
 
 ---
 
-#🤝 Contribuciones
+# 🤝 Contribuciones
 
 ¿Quieres ayudar? Puedes contribuir así:
 
@@ -138,12 +138,12 @@ Puedes desplegar el proyecto en:
 
 ---
 
-#📝 Licencia
+# 📝 Licencia
 Este proyecto está licenciado bajo la licencia MIT.
 
 ---
 
-#👤 Autor
+# 👤 Autor
 @xKouka – Autor del repositorio original.
 
 ---
