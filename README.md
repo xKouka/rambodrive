@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Descripción
 
-## Getting Started
+# 🗂️ RamboDrive
 
-First, run the development server:
+**RamboDrive** es una aplicación web estilo "cloud drive" desarrollada con tecnologías modernas como **Next.js** y **Supabase**. Permite a los usuarios autenticarse, subir, organizar y gestionar archivos en la nube a través de una interfaz intuitiva. Utiliza Supabase como backend sin servidor para autenticación, base de datos y almacenamiento.
+
+---
+
+## 🚀 Tecnologías utilizadas
+
+- ⚛️ [Next.js](https://nextjs.org/) – Framework basado en React (App Router, SSR).
+- 🟢 [Supabase](https://supabase.io/) – Backend como servicio (Auth, Storage, PostgreSQL).
+- 💅 Tailwind CSS – (si está implementado) para estilos utilitarios.
+- 📦 `@supabase/supabase-js`, `@supabase/ssr` – SDKs para interactuar con Supabase.
+- ☁️ Vercel / Netlify – (opcional) para despliegue.
+
+---
+
+## 📸 Captura de pantalla
+
+<!-- Puedes subir tu propia imagen a /public y actualizar este enlace -->
+![Vista del explorador de archivos](./public/preview-drive-ui.png)
+
+---
+
+## 📦 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/xKouka/rambodrive.git
+cd rambodrive
+```
+## 2. Instalar dependencias
+
+```bash
+npm install
+```
+## 3. Crear archivo .env.local
+
+NEXT_PUBLIC_SUPABASE_URL=tu_url
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima
+
+## 4. Ejecutar en desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# ⚙️ Configuración de Supabase
+Requisitos:
+- Crear un proyecto en https://supabase.io
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Crear un bucket de almacenamiento llamado rambodrive
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Importar el archivo schema.sql incluido en la raíz para crear las tablas necesarias (users, files, etc.)
 
-## Learn More
+- Activar Row Level Security (RLS) para las tablas con políticas que limiten el acceso por usuario autenticado
 
-To learn more about Next.js, take a look at the following resources:
+- (Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 📁 Estructura del proyecto
 
-## Deploy on Vercel
+Se las dejo a ustedes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 🎯 Funcionalidades principales
+✅ Registro e inicio de sesión
+
+✅ Subida de archivos
+
+✅ Visualización en vista de carpeta
+
+✅ Descarga y eliminación de archivos
+
+✅ Vista adaptada por tipo de archivo (PDF, imagen, texto, etc.)
+
+🚧 Compartición de enlaces públicos (en desarrollo)
+
+---
+
+# 🔐 Seguridad
+Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
+
+-- Ejemplo básico de política:
+sql
+
+ CREATE POLICY "Solo dueño puede leer" ON files
+
+ FOR SELECT USING (auth.uid() = user_id);
+
+---
+
+# ☁️ Despliegue
+Puedes desplegar el proyecto en:
+
+- Vercel
+
+- Netlify
+
+Pasos:
+
+- Sube el repo.
+
+- Configura las variables de entorno en el panel del host.
+
+- Activa RLS y crea tablas en Supabase.
+
+- Conecta bucket de almacenamiento.
+
+---
+
+# 🤝 Contribuciones
+
+¿Quieres ayudar? Puedes contribuir así:
+
+-- Haz un fork del proyecto.
+
+-- Crea una nueva rama.
+
+-- Haz tus cambios y pruebas.
+
+-- Abre un Pull Request explicando tus mejoras.
+
+---
+
+# 📝 Licencia
+Este proyecto está licenciado bajo la licencia MIT, Licencia Apache 2.0.
+
+---
+
+# 👤 Autor
+@xKouka – Autor del repositorio original.
+
+---
