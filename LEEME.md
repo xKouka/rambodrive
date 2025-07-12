@@ -112,7 +112,7 @@ Puedes desplegar el proyecto en:
 
 - Netlify
 
-#Pasos:
+Pasos:
 
 - Sube el repo.
 
@@ -139,7 +139,7 @@ Puedes desplegar el proyecto en:
 ---
 
 # 📝 Licencia
-Este proyecto está licenciado bajo la licencia MIT.
+Este proyecto está licenciado bajo la licencia MIT, Licencia Apache 2.0.
 
 ---
 
