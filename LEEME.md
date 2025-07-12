@@ -51,15 +51,15 @@ npm run dev
 
 # ⚙️ Configuración de Supabase
 Requisitos:
-Crear un proyecto en https://supabase.io
+- Crear un proyecto en https://supabase.io
 
-Crear un bucket de almacenamiento llamado rambodrive
+- Crear un bucket de almacenamiento llamado rambodrive
 
-Importar el archivo schema.sql incluido en la raíz para crear las tablas necesarias (users, files, etc.)
+- Importar el archivo schema.sql incluido en la raíz para crear las tablas necesarias (users, files, etc.)
 
-Activar Row Level Security (RLS) para las tablas con políticas que limiten el acceso por usuario autenticado
+- Activar Row Level Security (RLS) para las tablas con políticas que limiten el acceso por usuario autenticado
 
-(Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
+- (Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
 
 ---
 
@@ -90,8 +90,9 @@ Este proyecto utiliza autenticación de Supabase y políticas RLS para garantiza
 Ejemplo básico de política:
 sql
 
-CREATE POLICY "Solo dueño puede leer" ON files
-FOR SELECT USING (auth.uid() = user_id);
+ CREATE POLICY "Solo dueño puede leer" ON files
+
+ FOR SELECT USING (auth.uid() = user_id);
 
 ---
 
