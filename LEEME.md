@@ -64,18 +64,8 @@ Activar Row Level Security (RLS) para las tablas con políticas que limiten el a
 ---
 
 # 📁 Estructura del proyecto
-rambodrive/
-├── app/                    # Rutas de Next.js (App Router)
-│   ├── drive/              # Página principal tipo explorador
-│   └── upload/             # Página para subir archivos
-├── components/             # UI: botones, menús, contenedores
-├── lib/                    # Funciones auxiliares
-│   └── supabase.ts         # Cliente Supabase SSR/browser
-├── public/                 # Archivos estáticos (iconos, logos)
-├── styles/                 # Archivos CSS globales
-├── .env.local.example      # Variables de entorno
-├── schema.sql              # Estructura de base de datos
-└── README.md
+
+Se las dejo a ustedes
 
 ---
 
