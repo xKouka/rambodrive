@@ -19,7 +19,7 @@
 ## 📸 Captura de pantalla
 
 <!-- Puedes subir tu propia imagen a /public y actualizar este enlace -->
-![Vista del explorador de archivos](./public/preview-drive-ui.png)
+![Vista del explorador de archivos](./public/preview-drive-ui.png) Esta parte es de ejemplo, poner captura del Software.
 
 ---
 
