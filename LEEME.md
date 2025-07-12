@@ -31,25 +31,25 @@
 git clone https://github.com/xKouka/rambodrive.git
 cd rambodrive
 ```
-2. Instalar dependencias
+## 2. Instalar dependencias
 
 ```bash
 npm install
 ```
-3. Crear archivo .env.local
-env
+## 3. Crear archivo .env.local
 
 NEXT_PUBLIC_SUPABASE_URL=tu_url
 
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima
 
-4. Ejecutar en desarrollo
+## 4. Ejecutar en desarrollo
 
 ```bash
 npm run dev
 ```
+---
 
-⚙️ Configuración de Supabase
+# ⚙️ Configuración de Supabase
 Requisitos:
 Crear un proyecto en https://supabase.io
 
