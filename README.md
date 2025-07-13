@@ -65,7 +65,7 @@ Requisitos:
 
 # 📁 Estructura del proyecto
 
-Se las dejo a ustedes
+Se las dejo a ustedes que la agregen
 
 ---
 
@@ -87,7 +87,7 @@ Se las dejo a ustedes
 # 🔐 Seguridad
 Este proyecto utiliza autenticación de Supabase y políticas RLS para garantizar que cada usuario solo pueda acceder a sus propios archivos.
 
--- Ejemplo básico de política:
+- Ejemplo básico de política:
 sql
 
  CREATE POLICY "Solo dueño puede leer" ON files
@@ -119,18 +119,18 @@ Pasos:
 
 ¿Quieres ayudar? Puedes contribuir así:
 
--- Haz un fork del proyecto.
+- Haz un fork del proyecto.
 
--- Crea una nueva rama.
+- Crea una nueva rama.
 
--- Haz tus cambios y pruebas.
+- Haz tus cambios y pruebas.
 
--- Abre un Pull Request explicando tus mejoras.
+- Abre un Pull Request explicando tus mejoras.
 
 ---
 
 # 📝 Licencia
-Este proyecto está licenciado bajo la licencia MIT, Licencia Apache 2.0.
+Este proyecto está licenciado bajo la licencia MIT, Ver [LICENSE](./LICENSE).
 
 ---
 
