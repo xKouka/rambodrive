@@ -38,9 +38,11 @@ npm install
 ```
 ## 3. Crear archivo .env.local
 
+```bash
 NEXT_PUBLIC_SUPABASE_URL=tu_url
 
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_clave_anonima
+```
 
 ## 4. Ejecutar en desarrollo
 
