@@ -1,6 +1,7 @@
-"use client";
+// src/app/Dashboard/page.tsx
+'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { useRouter } from 'next/navigation'
 import FolderExplorer from '../Components/FolderExplore';
@@ -9,36 +10,52 @@ import DashboardHeader from '../Components/DashboardHeader';
 import Sidebar from '../Components/Sidebar';
 import ClientLayout from '../ClientLayout';
 
+// Se define un tipo para las vistas disponibles
+export type AppView = 'my_drive' | 'shared_with_me' | 'calendar' | 'contacts';
 
 export default function DashboardPage() {
     const { user, loading } = useUser();
     const router = useRouter();
+    
+    // Estado para controlar la vista actual (Mi unidad, Compartido, etc.)
+    const [currentView, setCurrentView] = useState<AppView>('my_drive');
+    // Estado para saber si una carpeta (propia o compartida) está abierta
+    const [isFolderOpen, setIsFolderOpen] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
             router.push('/Login');
         }
-    }, [user, loading]);
+    }, [user, loading, router]);
 
-    if (loading) return <p>Cargando sesión...</p>;
-    if (!user) return null; // Ya estás redirigiendo en useEffect
+    if (loading) {
+        return <p className="text-center text-white mt-20">Cargando sesión...</p>;
+    }
+    if (!user) {
+        return null;
+    }
 
     return (
         <ClientLayout>
             <div className="gradient-bg min-h-screen">
-
-                {/* Encabezado */}
                 <DashboardHeader />
+                <div className="pt-16 flex">
+                    {/* Se le pasa la vista actual y la función para cambiarla */}
+                    <Sidebar currentView={currentView} onViewChange={setCurrentView} />
 
-                {/* Contenido Principal con Sidebar y Área de Contenido */}
-                <div className="pt-16 flex"> {/* pt-16 para desplazar el contenido debajo del header fijo */}
-                    {/* Barra Lateral */}
-                    <Sidebar />
+                    <div className="ml-64 flex-grow p-6">
+                        {/* El explorador de carpetas ahora muestra contenido según la vista seleccionada */}
+                        <FolderExplorer 
+                            view={currentView}
+                            onFolderSelect={(folder) => setIsFolderOpen(!!folder)} 
+                        />
+                        
+                        {/* La tabla de archivos raíz solo se muestra en "Mi unidad" y si no hay una carpeta abierta */}
+                        {currentView === 'my_drive' && !isFolderOpen && <AllFilesTable />}
 
-                    {/* Área de Contenido Principal */}
-                    <div className="ml-64 flex-grow p-6"> {/* ml-64 para dejar espacio a la sidebar fija */}
-                        <FolderExplorer />
-                        <AllFilesTable />
+                        {/* Aquí podrías añadir los componentes para Calendario y Contactos */}
+                        {currentView === 'calendar' && <div className="text-white">Componente de Calendario</div>}
+                        {currentView === 'contacts' && <div className="text-white">Componente de Contactos</div>}
                     </div>
                 </div>
             </div>

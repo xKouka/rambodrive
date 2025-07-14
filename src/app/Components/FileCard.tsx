@@ -1,61 +1,222 @@
-import React from 'react';
+// src/app/Components/FolderExplorer.tsx
+'use client';
 
-interface FileCardProps {
-    fileName: string;
-    modifiedDate: string;
-    fileType: 'doc' | 'excel' | 'pdf' | 'ppt'; // Añade más tipos si es necesario
+import React, { useState, useEffect, useCallback } from 'react';
+import { client } from '../supabase-client';
+import { useUser } from '../contexts/UserContext';
+
+// --- Interfaz para los archivos de la base de datos ---
+interface DbFile {
+  id: number;
+  file_name: string;
+  storage_path: string;
 }
 
-export default function FileCard({ fileName, modifiedDate, fileType }: FileCardProps) {
-    // Función para determinar el icono y los colores según el tipo de archivo
-    const getFileIconProps = (type: string) => {
-        switch (type) {
-            case 'doc':
-                return {
-                    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-                    bgColor: "bg-blue-50",
-                    textColor: "text-blue-600"
-                };
-            case 'excel':
-                return {
-                    iconPath: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-                    bgColor: "bg-green-50",
-                    textColor: "text-green-600"
-                };
-            case 'pdf':
-                return {
-                    iconPath: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z",
-                    bgColor: "bg-red-50",
-                    textColor: "text-red-600"
-                };
-            case 'ppt':
-                return {
-                    iconPath: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
-                    bgColor: "bg-yellow-50",
-                    textColor: "text-yellow-600"
-                };
-            default:
-                return {
-                    iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", // Icono por defecto (documento)
-                    bgColor: "bg-gray-100",
-                    textColor: "text-gray-600"
-                };
+// --- Componente para una tarjeta de carpeta ---
+function FolderCard({ name, onClick }: { name: string, onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className="bg-gray-800 hover:bg-gray-700 text-white p-4 rounded-xl text-left font-medium shadow-lg hover:shadow-blue-500/20 transition-all w-full flex items-center"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+            {name}
+        </button>
+    );
+}
+
+// --- Componente para ver el contenido de una carpeta ---
+function FolderViewer({ folder, onBack }: { folder: string, onBack: () => void }) {
+    const { user } = useUser();
+    const [files, setFiles] = useState<DbFile[]>([]);
+    const [menuOpen, setMenuOpen] = useState<number | null>(null);
+    const [uploading, setUploading] = useState(false);
+
+    const fetchFiles = useCallback(async () => {
+        if (!user?.id || !folder) return;
+        const { data, error } = await client
+            .from('files')
+            .select('id, file_name, storage_path')
+            .eq('user_id', user.id)
+            .like('storage_path', `${user.id}/${folder}/%`);
+
+        if (error) {
+            console.error("Error cargando archivos de la carpeta:", error);
+            return;
         }
+        setFiles(data || []);
+    }, [user, folder]);
+
+    useEffect(() => {
+        fetchFiles();
+    }, [fetchFiles]);
+
+    const handleDownload = async (storagePath: string) => {
+        const { data, error } = await client.storage.from('rambodrive').createSignedUrl(storagePath, 60);
+        if (error || !data?.signedUrl) {
+            alert('Error al generar el enlace de descarga');
+            return;
+        }
+        window.open(data.signedUrl, '_blank');
     };
 
-    const { iconPath, bgColor, textColor } = getFileIconProps(fileType);
+    const handleDelete = async (file: DbFile) => {
+        await client.from('files').delete().eq('id', file.id);
+        await client.storage.from('rambodrive').remove([file.storage_path]);
+        fetchFiles();
+    };
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user?.id) return;
+
+        setUploading(true);
+        const path = `${user.id}/${folder}/${file.name}`;
+
+        const { error: uploadError } = await client.storage.from('rambodrive').upload(path, file, { upsert: true });
+        if (uploadError) {
+            alert('Error al subir archivo');
+            setUploading(false);
+            return;
+        }
+
+        const { error: insertError } = await client.from('files').insert({
+            file_name: file.name,
+            file_size: file.size,
+            mime_type: file.type,
+            storage_path: path,
+            user_id: user.id
+        });
+
+        if (insertError) {
+            alert(`Error al guardar el archivo: ${insertError.message}`);
+            await client.storage.from('rambodrive').remove([path]);
+        } else {
+            fetchFiles();
+        }
+        setUploading(false);
+    };
 
     return (
-        <div className="file-card bg-gray-900 rounded-lg overflow-hidden custom-shadow hover:shadow-md transition-shadow duration-200">
-            <div className={`h-32 flex items-center justify-center ${bgColor}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-16 w-16 ${textColor}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={iconPath}></path>
-                </svg>
+        <div className="mt-6">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white text-lg font-semibold truncate">
+                    Carpeta: {folder}
+                </h3>
+                <div className="flex gap-2">
+                    <label className="bg-green-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-green-500 text-sm font-medium">
+                        {uploading ? 'Subiendo...' : 'Subir archivo'}
+                        <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+                    </label>
+                    <button onClick={onBack} className="text-sm text-white bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg font-medium">
+                        ⬅ Volver
+                    </button>
+                </div>
             </div>
-            <div className="p-3">
-                <h3 className="font-medium text-white whitespace-nowrap overflow-hidden text-ellipsis">{fileName}</h3>
-                <p className="text-sm text-gray-500">Modificado: {modifiedDate}</p>
-            </div>
+
+            <ul className="bg-gray-800 rounded-lg p-2 space-y-1">
+                {files.map(file => (
+                    <li key={file.id} className="flex justify-between items-center p-2 rounded-md hover:bg-gray-700/50 relative group">
+                        <span className="text-gray-200 text-sm">{file.file_name}</span>
+                        <div className="relative">
+                            <button onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)} className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100"> ⋮ </button>
+                            {menuOpen === file.id && (
+                                <div className="absolute right-0 mt-2 w-32 bg-white rounded shadow-lg z-10">
+                                    <button onClick={() => { handleDownload(file.storage_path); setMenuOpen(null); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"> Descargar </button>
+                                    <button onClick={() => { handleDelete(file); setMenuOpen(null); }} className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"> Eliminar </button>
+                                </div>
+                            )}
+                        </div>
+                    </li>
+                ))}
+                {files.length === 0 && !uploading && (
+                    <li className="text-gray-500 text-center p-4">Esta carpeta está vacía.</li>
+                )}
+            </ul>
         </div>
     );
-};
+}
+
+// --- Componente principal del explorador de carpetas ---
+interface FolderExplorerProps {
+  onFolderSelect: (folderName: string | null) => void;
+}
+
+export default function FolderExplorer({ onFolderSelect }: FolderExplorerProps) {
+    const { user } = useUser();
+    const [folders, setFolders] = useState<string[]>([]);
+    const [newFolderName, setNewFolderName] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+
+    const handleSetSelectedFolder = (folderName: string | null) => {
+        setSelectedFolder(folderName);
+        onFolderSelect(folderName); // Notifica al componente padre
+    };
+
+    const fetchFolders = useCallback(async () => {
+        if (!user?.id) return;
+        const { data, error } = await client.storage.from('rambodrive').list(user.id, { limit: 100 });
+        if (error) {
+            console.error('Error al obtener carpetas:', error.message);
+            return;
+        }
+        const folderNames = data?.filter(item => item.id === null).map(item => item.name) || [];
+        setFolders(folderNames);
+    }, [user]);
+
+    useEffect(() => {
+        fetchFolders();
+    }, [fetchFolders]);
+
+    const handleAddFolder = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newFolderName.trim() || !user?.id) return;
+        const folderPath = `${user.id}/${newFolderName}/.placeholder`;
+        setLoading(true);
+        const { error } = await client.storage.from('rambodrive').upload(folderPath, new Blob(['']), { upsert: false });
+        if (error) {
+            alert('Error al crear la carpeta. Es posible que ya exista.');
+        } else {
+            setNewFolderName('');
+            fetchFolders();
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="mb-6">
+            {!selectedFolder ? (
+                <>
+                    <h2 className="text-xl font-medium text-white mb-4">Carpetas personales</h2>
+                    <form onSubmit={handleAddFolder} className="flex gap-2 mb-4">
+                        <input
+                            type="text"
+                            value={newFolderName}
+                            onChange={(e) => setNewFolderName(e.target.value)}
+                            placeholder="Nombre de la nueva carpeta"
+                            className="p-2 rounded-lg bg-gray-700 text-white border border-gray-600 focus:ring-blue-500 focus:border-blue-500 flex-1"
+                        />
+                        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition font-semibold">
+                            {loading ? 'Creando...' : 'Crear'}
+                        </button>
+                    </form>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {folders.map((folderName, index) => (
+                            <FolderCard
+                                key={index}
+                                name={folderName}
+                                onClick={() => handleSetSelectedFolder(folderName)}
+                            />
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <FolderViewer
+                    folder={selectedFolder}
+                    onBack={() => handleSetSelectedFolder(null)}
+                />
+            )}
+        </div>
+    );
+}
