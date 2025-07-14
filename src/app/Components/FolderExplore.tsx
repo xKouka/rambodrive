@@ -4,9 +4,20 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { client } from '../supabase-client';
 import { useUser } from '../contexts/UserContext';
-import { AppView } from '../Dashboard/page'; // Se importa el tipo de vista
+import { AppView } from '../Dashboard/page'; // Asegúrate que la ruta a tu página sea correcta
 
-// --- Interfaces y Tipos ---
+// --- 1. Interfaces y Tipos (Centralizados) ---
+interface Profile {
+  id: string;
+  username: string;
+  full_name: string | null;
+}
+export interface ContactRelation {
+  id: number;
+  alias: string | null;
+  avatar_color: string | null;
+  contact: Profile;
+}
 interface DbFile {
   id: number;
   file_name: string;
@@ -14,13 +25,17 @@ interface DbFile {
   created_at: string;
   file_size: number;
 }
-interface SharedFolder {
+interface DetailedShare {
   folder_name: string;
   owner_id: string;
+  owner_name: string | null;
+  shared_with_id: string;
+  shared_with_name: string | null;
+  share_direction: 'inbound' | 'outbound';
 }
 type FileType = "doc" | "excel" | "pdf" | "ppt" | "generic";
 
-// --- Funciones de Ayuda (reutilizables) ---
+// --- 2. Funciones de Ayuda (Reutilizables) ---
 const getFileType = (fileName: string): FileType => {
     const ext = fileName.split(".").pop()?.toLowerCase();
     if (ext === "doc" || ext === "docx" || ext === "odt") return "doc";
@@ -40,44 +55,41 @@ const getFileIconProps = (type: FileType) => {
     }
 };
 
-// --- Componente Modal para Compartir ---
-function ShareModal({ folderName, onClose, ownerId }: { folderName: string; onClose: () => void; ownerId: string; }) {
-    const [email, setEmail] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const handleShare = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.trim()) return;
-        setLoading(true);
-        setMessage('');
-        const { data: sharedUserId, error: rpcError } = await client.rpc('get_user_id_by_email', { email_param: email });
-        if (rpcError || !sharedUserId) { setMessage('Error: Usuario no encontrado.'); setLoading(false); return; }
-        const { error: insertError } = await client.from('shares').insert({ folder_name: folderName, owner_id: ownerId, shared_with_id: sharedUserId });
-        if (insertError) { setMessage(`Error: ${insertError.message}`); } else { setMessage(`¡Carpeta compartida con ${email}!`); setEmail(''); }
-        setLoading(false);
-    };
-    return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center" onClick={onClose}>
-            <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md text-white shadow-lg" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-xl font-semibold mb-4">Compartir "{folderName}"</h2>
-                <form onSubmit={handleShare}>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email del usuario" className="w-full p-2 rounded bg-gray-700 border border-gray-600 mb-4" required />
-                    <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 p-2 rounded font-semibold disabled:bg-gray-500">{loading ? 'Compartiendo...' : 'Compartir'}</button>
-                    {message && <p className="mt-4 text-center text-sm">{message}</p>}
-                </form>
-            </div>
-        </div>
-    );
-}
+// Hook personalizado para cerrar menús al hacer clic fuera
+const useClickOutside = (handler: () => void) => {
+    const domNode = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const maybeHandler = (event: MouseEvent) => {
+            if (domNode.current && !domNode.current.contains(event.target as Node)) {
+                handler();
+            }
+        };
+        document.addEventListener("mousedown", maybeHandler);
+        return () => {
+            document.removeEventListener("mousedown", maybeHandler);
+        };
+    }, [handler]);
+    return domNode;
+};
 
-// --- Componente para una tarjeta de carpeta ---
-function FolderCard({ name, onCardClick, onMenuClick, isShared = false }: { name: string, onCardClick: () => void, onMenuClick: (e: React.MouseEvent) => void, isShared?: boolean }) {
+// --- 3. Componentes de UI (Reutilizables) ---
+
+function FolderCard({ name, description, onCardClick, onMenuClick, isShared = false }: { 
+    name: string, 
+    description?: string,
+    onCardClick: () => void, 
+    onMenuClick: (e: React.MouseEvent) => void, 
+    isShared?: boolean 
+}) {
     return (
-        <div className="bg-gray-800 rounded-xl shadow-lg hover:shadow-blue-500/20 transition-all relative group">
-            <button onClick={onCardClick} className="text-white p-4 text-left font-medium w-full h-full flex items-center">
+        <div className="bg-gray-800 rounded-xl shadow-lg hover:shadow-blue-500/20 transition-all relative group flex flex-col">
+            <button onClick={onCardClick} className="text-white p-4 text-left font-medium w-full flex items-center flex-grow">
                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 mr-3 ${isShared ? 'text-purple-400' : 'text-yellow-400'} flex-shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
                 <span className="truncate">{name}</span>
             </button>
+            {description && (
+                <p className="text-xs text-gray-400 px-4 pb-2 truncate" title={description}>{description}</p>
+            )}
             {!isShared && (
                 <button onClick={onMenuClick} className="absolute top-3 right-2 p-1.5 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
@@ -87,13 +99,20 @@ function FolderCard({ name, onCardClick, onMenuClick, isShared = false }: { name
     );
 }
 
-// --- Componente para ver el contenido de una carpeta ---
-function FolderViewer({ folder, ownerId, onBack }: { folder: string; ownerId: string; onBack: () => void }) {
+function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: { 
+    folder: string; 
+    ownerId: string; 
+    onBack: () => void;
+    contacts: ContactRelation[];
+    onShare: (folderName: string, contact: ContactRelation) => void;
+}) {
     const { user } = useUser();
     const [files, setFiles] = useState<DbFile[]>([]);
     const [menuOpen, setMenuOpen] = useState<number | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const shareMenuRef = useRef<HTMLDivElement>(null);
     const isOwner = user?.id === ownerId;
 
     const fetchFiles = useCallback(async () => {
@@ -109,6 +128,9 @@ function FolderViewer({ folder, ownerId, onBack }: { folder: string; ownerId: st
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setMenuOpen(null);
+            }
+            if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+                setShareMenuOpen(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -160,12 +182,33 @@ function FolderViewer({ folder, ownerId, onBack }: { folder: string; ownerId: st
                 <h3 className="text-white text-lg font-semibold truncate">
                     Carpeta: {folder} {!isOwner && <span className="text-sm text-purple-400">(Compartida)</span>}
                 </h3>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                     {isOwner && (
-                        <label className="bg-green-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-green-500 text-sm font-medium">
-                            {uploading ? 'Subiendo...' : 'Subir archivo'}
-                            <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
-                        </label>
+                        <>
+                            <div className="relative">
+                                <button onClick={() => setShareMenuOpen(!shareMenuOpen)} className="text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-medium">
+                                    Compartir
+                                </button>
+                                {shareMenuOpen && (
+                                    <div ref={shareMenuRef} className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                                        <div className="p-2 border-b text-xs text-gray-500">Compartir con...</div>
+                                        {contacts.length > 0 ? (
+                                            contacts.map(contact => (
+                                                <button key={contact.id} onClick={() => onShare(folder, contact)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                    {contact.alias || contact.contact.full_name || contact.contact.username}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="px-4 py-3 text-sm text-gray-500">No tienes contactos.</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <label className="bg-green-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-green-500 text-sm font-medium">
+                                {uploading ? 'Subiendo...' : 'Subir archivo'}
+                                <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+                            </label>
+                        </>
                     )}
                     <button onClick={onBack} className="text-sm text-white bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg font-medium">
                         ⬅ Volver
@@ -208,7 +251,8 @@ function FolderViewer({ folder, ownerId, onBack }: { folder: string; ownerId: st
     );
 }
 
-// --- Componente principal del explorador de carpetas ---
+
+// --- 4. Componente Principal (Orquestador) ---
 interface FolderExplorerProps {
   view: AppView;
   onFolderSelect: (folderName: string | null) => void;
@@ -217,15 +261,15 @@ interface FolderExplorerProps {
 export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerProps) {
     const { user } = useUser();
     const [folders, setFolders] = useState<string[]>([]);
-    const [sharedFolders, setSharedFolders] = useState<SharedFolder[]>([]);
+    const [allShares, setAllShares] = useState<DetailedShare[]>([]);
+    const [contacts, setContacts] = useState<ContactRelation[]>([]);
     const [newFolderName, setNewFolderName] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState<{ name: string; ownerId: string } | null>(null);
     const [folderMenuOpen, setFolderMenuOpen] = useState<string | null>(null);
+    const [shareMenuOpen, setShareMenuOpen] = useState<string | null>(null);
     const [renamingFolder, setRenamingFolder] = useState<string | null>(null);
     const [renameInput, setRenameInput] = useState('');
-    const [shareModalOpen, setShareModalOpen] = useState(false);
-    const [folderToShare, setFolderToShare] = useState('');
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleSetSelectedFolder = (folder: { name: string; ownerId: string } | null) => {
@@ -241,25 +285,43 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
         setFolders(folderNames);
     }, [user]);
 
-    const fetchSharedFolders = useCallback(async () => {
+    const fetchAllShares = useCallback(async () => {
         if (!user?.id) return;
-        const { data, error } = await client.from('shares').select('folder_name, owner_id').eq('shared_with_id', user.id);
-        if (error) { console.error("Error al obtener carpetas compartidas:", error); } 
-        else { setSharedFolders(data || []); }
+        setLoading(true);
+        const { data, error } = await client.rpc('get_all_my_shares', { p_user_id: user.id });
+        if (error) {
+            console.error("Error fetching all shares:", error);
+        } else {
+            setAllShares(data || []);
+        }
+        setLoading(false);
+    }, [user]);
+    
+    const fetchContacts = useCallback(async () => {
+        if (!user) return;
+        const { data, error } = await client.from('contacts').select(`id, alias, avatar_color, contact:contact_id ( id, username, full_name )`).eq('owner_id', user.id);
+        if (error) { console.error("Error cargando contactos:", error); return; }
+        if (data) {
+            const validData = (data as any[]).filter(item => item.contact && typeof item.contact === 'object').map(item => ({ id: item.id, alias: item.alias, avatar_color: item.avatar_color, contact: item.contact }));
+            setContacts(validData);
+        }
     }, [user]);
 
     useEffect(() => {
+        handleSetSelectedFolder(null);
         if (view === 'my_drive') {
             fetchFolders();
+            fetchContacts();
         } else if (view === 'shared_with_me') {
-            fetchSharedFolders();
+            fetchAllShares();
         }
-    }, [view, fetchFolders, fetchSharedFolders]);
+    }, [view, fetchFolders, fetchAllShares, fetchContacts]);
     
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setFolderMenuOpen(null);
+                setShareMenuOpen(null);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -272,12 +334,7 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
         const folderPath = `${user.id}/${newFolderName}/.placeholder`;
         setLoading(true);
         const { error } = await client.storage.from('rambodrive').upload(folderPath, new Blob(['']), { upsert: false });
-        if (error) {
-            alert('Error al crear la carpeta. Es posible que ya exista.');
-        } else {
-            setNewFolderName('');
-            fetchFolders();
-        }
+        if (error) { alert('Error al crear la carpeta. Es posible que ya exista.'); } else { setNewFolderName(''); fetchFolders(); }
         setLoading(false);
     };
 
@@ -314,10 +371,27 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
         setRenamingFolder(null);
         fetchFolders();
     };
+    
+    const handleShareWithContact = async (folderName: string, contact: ContactRelation) => {
+        if (!user) return;
+        const { error } = await client.from('shares').insert({ folder_name: folderName, owner_id: user.id, shared_with_id: contact.contact.id });
+        if (error) {
+            alert(`Error al compartir: ${error.message}`);
+        } else {
+            alert(`¡Carpeta "${folderName}" compartida con ${contact.alias || contact.contact.full_name}!`);
+        }
+        setShareMenuOpen(null);
+    };
 
     // --- Lógica de Renderizado ---
     if (selectedFolder) {
-        return <FolderViewer folder={selectedFolder.name} ownerId={selectedFolder.ownerId} onBack={() => handleSetSelectedFolder(null)} />;
+        return <FolderViewer 
+                    folder={selectedFolder.name} 
+                    ownerId={selectedFolder.ownerId} 
+                    onBack={() => handleSetSelectedFolder(null)}
+                    contacts={contacts}
+                    onShare={handleShareWithContact}
+                />;
     }
 
     if (view === 'my_drive') {
@@ -342,15 +416,28 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
                             )}
                             {folderMenuOpen === folderName && (
                                 <div ref={menuRef} className="absolute top-full right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-20">
-                                    <button onClick={() => { setFolderToShare(folderName); setShareModalOpen(true); setFolderMenuOpen(null); }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Compartir</button>
+                                    <button onClick={() => { setShareMenuOpen(folderName); setFolderMenuOpen(null); }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Compartir</button>
                                     <button onClick={() => { setRenamingFolder(folderName); setRenameInput(folderName); setFolderMenuOpen(null); }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cambiar nombre</button>
                                     <button onClick={() => handleDeleteFolder(folderName)} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Eliminar carpeta</button>
+                                </div>
+                            )}
+                            {shareMenuOpen === folderName && (
+                                <div ref={menuRef} className="absolute top-full right-0 mt-1 w-56 bg-white rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                                    <div className="p-2 border-b text-xs text-gray-500">Compartir con...</div>
+                                    {contacts.length > 0 ? (
+                                        contacts.map(contact => (
+                                            <button key={contact.id} onClick={() => handleShareWithContact(folderName, contact)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {contact.alias || contact.contact.full_name || contact.contact.username}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-4 py-3 text-sm text-gray-500">No tienes contactos.</div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     ))}
                 </div>
-                {shareModalOpen && user && ( <ShareModal folderName={folderToShare} onClose={() => setShareModalOpen(false)} ownerId={user.id} /> )}
             </div>
         );
     }
@@ -358,12 +445,32 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
     if (view === 'shared_with_me') {
         return (
             <div>
-                <h2 className="text-xl font-medium text-white mb-4">Compartido conmigo</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {sharedFolders.map((folder, index) => (
-                        <FolderCard key={`shared-${index}`} name={folder.folder_name} onCardClick={() => handleSetSelectedFolder({ name: folder.folder_name, ownerId: folder.owner_id })} onMenuClick={(e) => e.stopPropagation()} isShared={true} />
-                    ))}
-                </div>
+                <h2 className="text-xl font-medium text-white mb-4">Compartido conmigo y por mí</h2>
+                {loading ? (
+                    <p className="text-center text-gray-400">Cargando...</p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {allShares.length > 0 ? allShares.map((share, index) => {
+                            const isOutbound = share.share_direction === 'outbound';
+                            const description = isOutbound 
+                                ? `Para: ${share.shared_with_name || 'Desconocido'}` 
+                                : `De: ${share.owner_name || 'Desconocido'}`;
+                            
+                            return (
+                                <FolderCard 
+                                    key={`share-${index}`} 
+                                    name={share.folder_name} 
+                                    description={description}
+                                    onCardClick={() => handleSetSelectedFolder({ name: share.folder_name, ownerId: share.owner_id })} 
+                                    onMenuClick={(e) => e.stopPropagation()}
+                                    isShared={true} 
+                                />
+                            );
+                        }) : (
+                            <p className="col-span-full text-center py-8 text-gray-500">No tienes carpetas compartidas.</p>
+                        )}
+                    </div>
+                )}
             </div>
         );
     }
