@@ -1,6 +1,32 @@
-# Licencia MIT
+# LICENCIAS DE SOFTWARE
 
-- Copyright (c) 2025 Equipo de RamboDrive
+## Proyecto: RamboDrive
+Versión: 1.0  
+Autor: Equipo de Rambodrive  
+Licencia: MIT  
+Repositorio: https://github.com/xKouka/rambodrive
+
+---
+
+## Librerías utilizadas:
+
+### 1. SweetAlert2  
+Repositorio: https://github.com/sweetalert2/sweetalert2  
+Licencia: MIT  
+Autor: Tristan Edwards & Limon Monte
+
+### 2. FullCalendar  
+Repositorio: https://github.com/fullcalendar/fullcalendar  
+Licencia: MIT  
+Autor: Adam Shaw
+
+---
+
+## Texto completo de la Licencia MIT:
+
+Licencia MIT
+
+Copyright (c) 2025 Equipo de RamboDrive
 
 Por la presente se concede permiso, sin cargo, a cualquier persona que obtenga una copia
 de este software y los archivos de documentación asociados (el "Software"), para utilizar
@@ -18,3 +44,4 @@ PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES O LOS TITULARES DEL COP
 SERÁN RESPONSABLES POR NINGÚN RECLAMO, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN
 DE CONTRATO, AGRAVIO O DE OTRO TIPO, QUE SURJA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO
 U OTROS MANEJOS DEL SOFTWARE.
+
