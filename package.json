@@ -9,7 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/react": "^6.1.18",
+    "@fullcalendar/timegrid": "^6.1.18",
     "@supabase/supabase-js": "^2.50.0",
+    "fullcalendar": "^6.1.18",
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
