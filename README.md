@@ -132,7 +132,9 @@ Pasos:
 ---
 
 # 📝 Licencia
-Este proyecto está licenciado bajo la licencia MIT, Ver [LICENSE](./LICENSE).
+Este proyecto y sus dependencias están cubiertos bajo la licencia MIT. 
+
+Ver los documentos consolidados [LICENSE](./LICENSE) y [LICENCIAS.pdf](./LICENCIAS.pdf).
 
 ---
 
