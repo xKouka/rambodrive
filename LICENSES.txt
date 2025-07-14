@@ -13,7 +13,7 @@ Repositorio: https://github.com/xKouka/rambodrive
 ### 1. SweetAlert2  
 Repositorio: https://github.com/sweetalert2/sweetalert2  
 Licencia: MIT  
-Autor: Lloris François y colaboradores
+Autor: Tristan Edwards & Limon Monte
 
 ### 2. FullCalendar  
 Repositorio: https://github.com/fullcalendar/fullcalendar  
