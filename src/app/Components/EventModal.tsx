@@ -2,15 +2,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { EventClickArg, EventInput } from '@fullcalendar/core';
+import { EventClickArg, EventInput, DateSelectArg } from '@fullcalendar/core';
 
-// Interfaces
+// --- AÑADIDO PARA COLORES ---
+const eventColors = ['#3b82f6', '#10b981', '#ef4444', '#f97316', '#8b5cf6'];
+const defaultColor = eventColors[0];
+// --- FIN DE AÑADIDO ---
+
 interface EventModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (eventData: Partial<EventInput> & { description?: string }) => void;
+    onSave: (eventData: Partial<EventInput> & { description?: string; color?: string }) => void; // Se añade 'color'
     onDelete: (eventId: string) => void;
-    eventInfo: EventClickArg | { startStr: string, endStr: string } | null;
+    eventInfo: EventClickArg | DateSelectArg | null;
     isOwner: boolean;
 }
 
@@ -20,50 +24,45 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
     const [allDay, setAllDay] = useState(false);
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [color, setColor] = useState(defaultColor); // --- AÑADIDO PARA COLORES ---
 
     const isCreating = !('event' in (eventInfo || {}));
 
     const formatDateForInput = (dateStr: string, isAllDay: boolean) => {
-        // Si no hay fecha, devuelve un string vacío
         if (!dateStr) return '';
-        // Devuelve 'YYYY-MM-DD' para eventos de todo el día
         if (isAllDay) return dateStr.slice(0, 10);
-        // Devuelve 'YYYY-MM-DDTHH:mm' para eventos con hora
         return dateStr.slice(0, 16);
     };
 
-    // Este useEffect se ejecuta cuando el modal se abre o cambia el evento
     useEffect(() => {
         if (eventInfo) {
-            if ('event' in eventInfo) { // Editando o viendo
+            if ('event' in eventInfo) {
                 const { event } = eventInfo;
                 const isAllDayEvent = event.allDay;
                 setTitle(event.title);
                 setDescription(event.extendedProps.description || '');
                 setAllDay(isAllDayEvent);
-                // Usamos la fecha de inicio del evento para ambos campos si es necesario
-                const start = event.start ? event.start.toISOString() : new Date().toISOString();
-                const end = event.end ? event.end.toISOString() : start;
-                setStartTime(formatDateForInput(start, isAllDayEvent));
-                setEndTime(formatDateForInput(end, isAllDayEvent));
-            } else { // Creando
+                setColor(event.backgroundColor || defaultColor); // --- AÑADIDO PARA COLORES ---
+
+                const start = event.start ? new Date(event.start) : new Date();
+                const end = event.end ? new Date(event.end) : start;
+                setStartTime(formatDateForInput(start.toISOString(), isAllDayEvent));
+                setEndTime(formatDateForInput(end.toISOString(), isAllDayEvent));
+            } else {
                 setTitle('');
                 setDescription('');
-                setAllDay(false); // Por defecto al crear no es "todo el día"
-                setStartTime(formatDateForInput(eventInfo.startStr, false));
-                setEndTime(formatDateForInput(eventInfo.endStr, false));
+                setAllDay(eventInfo.allDay);
+                setColor(defaultColor); // --- AÑADIDO PARA COLORES ---
+                setStartTime(formatDateForInput(eventInfo.startStr, eventInfo.allDay));
+                setEndTime(formatDateForInput(eventInfo.endStr, eventInfo.allDay));
             }
         }
     }, [eventInfo]);
 
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Este nuevo useEffect reacciona a los cambios del checkbox 'allDay'
     useEffect(() => {
-        // Cuando el estado de 'allDay' cambia, reformateamos las fechas
         setStartTime(prev => formatDateForInput(prev, allDay));
         setEndTime(prev => formatDateForInput(prev, allDay));
     }, [allDay]);
-    // --- FIN DE LA CORRECCIÓN ---
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -74,6 +73,7 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
             start: startTime,
             end: endTime,
             allDay,
+            color, // --- AÑADIDO PARA COLORES ---
         };
         onSave(eventData);
     };
@@ -108,6 +108,22 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
                         <input id="all_day" type="checkbox" checked={allDay} onChange={e => setAllDay(e.target.checked)} disabled={!canEdit} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50" />
                         <label htmlFor="all_day" className="ml-2 block text-sm">Todo el día</label>
                     </div>
+
+                    {/* --- BLOQUE AÑADIDO PARA COLORES --- */}
+                    <div className="pt-2">
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Color del Evento</label>
+                        <div className="flex gap-3">
+                            {eventColors.map(c => (
+                                <div
+                                    key={c}
+                                    onClick={() => canEdit && setColor(c)}
+                                    style={{ backgroundColor: c }}
+                                    className={`w-8 h-8 rounded-full transition-transform ${canEdit ? 'cursor-pointer' : 'cursor-not-allowed'} ${color === c ? 'ring-2 ring-offset-2 ring-offset-gray-800 ring-white' : ''}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="flex justify-between items-center pt-4">
                         <div>
                             {(!isCreating && isOwner) && (

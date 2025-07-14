@@ -19,7 +19,6 @@ export default function Calendar() {
     const [selectedEventInfo, setSelectedEventInfo] = useState<EventClickArg | DateSelectArg | null>(null);
     const [isOwner, setIsOwner] = useState(false);
 
-    // Cargar eventos desde Supabase
     const fetchEvents = useCallback(async () => {
         if (!user) return;
         const { data, error } = await client
@@ -37,7 +36,7 @@ export default function Calendar() {
             start: event.start_time,
             end: event.end_time,
             allDay: event.all_day,
-            color: event.color,
+            color: event.color, // Ya lee el color de la DB
             extendedProps: {
                 description: event.description,
                 owner_id: event.owner_id
@@ -52,22 +51,20 @@ export default function Calendar() {
         }
     }, [user, fetchEvents]);
 
-    // Manejar la creación de un nuevo evento al seleccionar fechas
     const handleSelect = (selectInfo: DateSelectArg) => {
         setSelectedEventInfo(selectInfo);
-        setIsOwner(true); // Al crear, eres el dueño
+        setIsOwner(true);
         setIsModalOpen(true);
     };
 
-    // Manejar el clic en un evento existente
     const handleEventClick = (clickInfo: EventClickArg) => {
         setSelectedEventInfo(clickInfo);
         setIsOwner(clickInfo.event.extendedProps.owner_id === user?.id);
         setIsModalOpen(true);
     };
 
-    // Guardar (crear o actualizar) un evento
-    const handleSaveEvent = async (eventData: Partial<EventInput> & { description?: string }) => {
+    // --- FUNCIÓN MODIFICADA PARA GUARDAR EL COLOR ---
+    const handleSaveEvent = async (eventData: Partial<EventInput> & { description?: string; color?: string }) => {
         if (!user) return;
 
         const dataToSave = {
@@ -77,12 +74,13 @@ export default function Calendar() {
             start_time: eventData.start,
             end_time: eventData.end,
             all_day: eventData.allDay,
+            color: eventData.color, // Se añade la propiedad color
         };
 
         let error;
-        if (eventData.id) { // Actualizar evento existente
+        if (eventData.id) {
             ({ error } = await client.from('calendar_events').update(dataToSave).eq('id', eventData.id));
-        } else { // Crear nuevo evento
+        } else {
             ({ error } = await client.from('calendar_events').insert(dataToSave));
         }
 
@@ -91,11 +89,10 @@ export default function Calendar() {
             console.error(error);
         } else {
             setIsModalOpen(false);
-            fetchEvents(); // Recargar eventos
+            fetchEvents();
         }
     };
 
-    // Eliminar un evento
     const handleDeleteEvent = async (eventId: string) => {
         if (window.confirm("¿Estás seguro de que quieres eliminar este evento?")) {
             const { error } = await client.from('calendar_events').delete().eq('id', eventId);
@@ -104,7 +101,7 @@ export default function Calendar() {
                 console.error(error);
             } else {
                 setIsModalOpen(false);
-                fetchEvents(); // Recargar eventos
+                fetchEvents();
             }
         }
     };
@@ -114,7 +111,7 @@ export default function Calendar() {
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
-                timeZone='locale' // <-- LA LÍNEA CLAVE PARA CORREGIR LA ZONA HORARIA
+                timeZone='locale'
                 weekends={true}
                 events={events}
                 locale={esLocale}
