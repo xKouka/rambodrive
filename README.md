@@ -134,7 +134,7 @@ Pasos:
 # 📝 Licencia
 Este proyecto y sus dependencias están cubiertos bajo la licencia MIT. 
 
-Ver los documentos consolidados [LICENSE](./LICENSE) y [LICENCIAS.pdf](./LICENCIAS.pdf).
+Ver los documentos consolidados [LICENSE](./LICENSE) y [LICENSES.txt](./LICENSES.txt).
 
 ---
 
