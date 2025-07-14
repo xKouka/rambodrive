@@ -9,11 +9,100 @@
 }
 
 .gradient-bg {
-    background: linear-gradient(135deg, #000000 0%, #1e3a8a 100%); /* Negro a un azul oscuro */
+    background: linear-gradient(135deg, #000000 0%, #1e3a8a 100%);
+    /* Negro a un azul oscuro */
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
     /* Puedes añadir más estilos hover aquí si lo deseas, por ejemplo, box-shadow */
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+:root {
+    --fc-border-color: #374151;
+    /* Un gris oscuro para los bordes */
+    --fc-daygrid-day-bg-color: transparent;
+    /* Fondo de día transparente */
+    --fc-day-today-bg-color: rgba(96, 165, 250, 0.2);
+    /* Resaltado para el día de hoy (azul con transparencia) */
+
+    --fc-button-bg-color: #3b82f6;
+    /* Color de fondo para los botones */
+    --fc-button-text-color: #ffffff;
+    /* Color de texto para los botones */
+    --fc-button-border-color: #3b82f6;
+
+    --fc-button-hover-bg-color: #2563eb;
+    /* Color de botones al pasar el mouse */
+    --fc-button-hover-border-color: #2563eb;
+
+    --fc-button-active-bg-color: #1d4ed8;
+    /* Color de botones activos (Mes, Semana, Día) */
+    --fc-button-active-border-color: #1d4ed8;
+
+    --fc-event-bg-color: #1e40af;
+    /* Color de fondo de los eventos */
+    --fc-event-border-color: #1e3a8a;
+    --fc-event-text-color: #ffffff;
+    /* Color de texto de los eventos */
+
+    --fc-list-event-hover-bg-color: #1f2937;
+    /* Fondo para eventos en vista de lista */
+}
+
+/* Cambia el color del texto de los números y títulos (ej. 'lun', 'mar') */
+.fc .fc-day-sun .fc-daygrid-day-number,
+.fc .fc-day-sat .fc-daygrid-day-number {
+    color: #f87171;
+    /* Un tono de rojo */
+}
+
+.fc .fc-day-sun .fc-daygrid-day-number {
+    color: #f87171;
+    /* Un tono de rojo de Tailwind */
+}
+
+.fc .fc-col-header-cell {
+    background-color: #2563eb;
+    /* Un azul oscuro que combine */
+}
+
+.fc .fc-timegrid-axis {
+    background-color: #2563eb;
+    /* El mismo azul oscuro */
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    /* Ancho de la barra */
+    height: 8px;
+    /* Alto de la barra (para scroll horizontal) */
+}
+
+/* Fondo de la barra de desplazamiento */
+::-webkit-scrollbar-track {
+    background: #1f2937;
+    /* Un gris muy oscuro, similar a tu tema */
+}
+
+/* El "mango" o la parte que se arrastra */
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    /* Un gris un poco más claro */
+    border-radius: 4px;
+    /* Bordes redondeados */
+}
+
+/* El mango al pasar el mouse por encima */
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+    /* Un gris aún más claro al hacer hover */
+}
+
+/* Para Firefox (un estilo más simple) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 #1f2937;
+    /* color del mango y del fondo */
 }

@@ -10,6 +10,7 @@ import DashboardHeader from '../Components/DashboardHeader';
 import Sidebar from '../Components/Sidebar';
 import ClientLayout from '../ClientLayout';
 import Contacts from '../Components/Contacts';
+import Calendar from '../Components/Calendar';
 
 // Se define un tipo para las vistas disponibles
 export type AppView = 'my_drive' | 'shared_with_me' | 'calendar' | 'contacts';
@@ -55,9 +56,7 @@ export default function DashboardPage() {
                         {currentView === 'my_drive' && !isFolderOpen && <AllFilesTable />}
 
                         {/* Aquí podrías añadir los componentes para Calendario y Contactos */}
-                        {currentView === 'calendar' && <div className="text-white">Componente de Calendario</div>}
-                        {currentView === 'calendar' && <div className="text-white">Componente de Calendario</div>}
-                        {currentView === 'contacts' && <div className="text-white">Componente de Contactos</div>}
+                        {currentView === 'calendar' && <Calendar />}
                         {currentView === 'contacts' && <Contacts />}
                     </div>
                 </div>
