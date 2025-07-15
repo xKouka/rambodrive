@@ -271,25 +271,6 @@ export default function Home() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    ></path>
-                  </svg>
-                  <span className="font-medium text-gray-200">
-                    Velocidad ultrarrápida
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-blue-400 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     ></path>
                   </svg>
@@ -301,184 +282,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sección de Características */}
-      <section id="caracteristicas" className="py-20 bg-black">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Todo lo que necesitas para gestionar tus archivos
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              RamboDrive te ofrece herramientas potentes y fáciles de usar para
-              almacenar, compartir y colaborar en tus archivos.
-            </p>
-          </div>
+{/* Sección de Características */}
+<section id="caracteristicas" className="py-20 bg-black">
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="text-center mb-16">
+      <h2 className="text-3xl font-bold text-white sm:text-4xl mb-4">
+        Tu nube personal, simple y veloz
+      </h2>
+      <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+        RamboDrive elimina lo complicado. Sube, organiza y accede a tus archivos de la forma más sencilla.
+      </p>
+    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Característica 1 */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Almacenamiento seguro
-              </h3>
-              <p className="text-gray-400">
-                Guarda tus archivos con encriptación de extremo a extremo y
-                accede a ellos desde cualquier dispositivo.
-              </p>
-            </div>
-
-            {/* Característica 2 */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Compartir sin límites
-              </h3>
-              <p className="text-gray-400">
-                Comparte archivos fácilmente con cualquier persona y controla
-                los permisos de acceso.
-              </p>
-            </div>
-
-            {/* Característica 3 */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Edición colaborativa
-              </h3>
-              <p className="text-gray-400">
-                Trabaja en documentos con tu equipo en tiempo real y mantén
-                todas las versiones organizadas.
-              </p>
-            </div>
-
-            {/* Característica 4 */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Backup automático
-              </h3>
-              <p className="text-gray-400">
-                Configura copias de seguridad automáticas para nunca perder tus
-                datos importantes.
-              </p>
-            </div>
-
-            {/* Característica 5 */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Análisis avanzado
-              </h3>
-              <p className="text-gray-400">
-                Obtén estadísticas detalladas sobre el uso de tu almacenamiento
-                y actividad de archivos.
-              </p>
-            </div>
-
-            {/* Característica 6 (añadida para completar) */}
-            <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-6 transition-all duration-300">
-              <div className="bg-blue-900 bg-opacity-30 rounded-full w-14 h-14 flex items-center justify-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  ></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Integración fluida
-              </h3>
-              <p className="text-gray-400">
-                Conecta RamboDrive con tus aplicaciones y servicios favoritos
-                para un flujo de trabajo sin interrupciones.
-              </p>
-            </div>
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      {/* Característica 1: Subida Rápida */}
+      <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-8 transition-all duration-300 hover:-translate-y-2">
+        <div className="bg-blue-900 bg-opacity-30 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
         </div>
-      </section>
+        <h3 className="text-xl font-semibold text-white mb-3">
+          Sube al Instante
+        </h3>
+        <p className="text-gray-400">
+          Arrastra y suelta cualquier archivo. Tu almacenamiento en la nube, sin esperas ni complicaciones.
+        </p>
+      </div>
+
+      {/* Característica 2: Organización Sencilla */}
+      <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-8 transition-all duration-300 hover:-translate-y-2">
+        <div className="bg-blue-900 bg-opacity-30 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-white mb-3">
+          Organiza a tu Manera
+        </h3>
+        <p className="text-gray-400">
+          Crea carpetas, renombra archivos y encuentra todo fácilmente con una interfaz limpia y directa.
+        </p>
+      </div>
+
+      {/* Característica 3: Acceso Universal */}
+      <div className="feature-card bg-gray-900 rounded-xl shadow-lg p-8 transition-all duration-300 hover:-translate-y-2">
+        <div className="bg-blue-900 bg-opacity-30 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-white mb-3">
+          Acceso Desde Donde Sea
+        </h3>
+        <p className="text-gray-400">
+          Tus archivos siempre disponibles y seguros, accesibles desde tu computadora, tablet o teléfono.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* Sección de Preguntas Frecuentes */}
       <section id="preguntas-frecuentes" className="py-20 gradient-bg">
@@ -512,8 +377,7 @@ export default function Home() {
               </h3>
               <p className="text-gray-400">
                 Para compartir un archivo, selecciona el archivo, haz clic en
-                "Compartir" y podrás generar un enlace seguro con opciones de
-                contraseña o fecha de caducidad.
+                "Compartir" y podrás compartir una carpeta de forma segura.
               </p>
             </div>
             {/* Pregunta 4 */}
@@ -522,7 +386,7 @@ export default function Home() {
                 ¿Existe un límite de almacenamiento en la versión gratuita?
               </h3>
               <p className="text-gray-400">
-                La versión gratuita de RamboDrive ofrece X GB de almacenamiento.
+                La versión gratuita de RamboDrive ofrece 10MB de almacenamiento.
                 Para obtener más espacio, puedes consultar nuestros planes
                 premium.
               </p>

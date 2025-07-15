@@ -81,31 +81,6 @@ export default function Login() {
               </p>
 
               <div className="space-y-6">
-                {/* Seguridad avanzada */}
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                      ></path>
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="font-medium text-xl">Seguridad avanzada</h3>
-                    <p className="text-sm opacity-90">
-                      Encriptación de extremo a extremo para todos tus archivos
-                    </p>
-                  </div>
-                </div>
 
                 {/* Velocidad ultrarrápida */}
                 <div className="flex items-start">
@@ -226,6 +201,7 @@ export default function Login() {
                       Contraseña
                     </label>
                     <input
+                    
                       type="password"
                       id="password"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -233,29 +209,6 @@ export default function Login() {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        type="checkbox"
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                      <label
-                        htmlFor="remember-me"
-                        className="ml-2 block text-sm text-gray-700 cursor-pointer"
-                      >
-                        Recordarme
-                      </label>
-                    </div>
-                    <a
-                      href="#"
-                      className="text-sm font-medium text-blue-600 hover:text-blue-500"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </a>
-                  </div>
-
                   <button
                     type="submit"
                     className="w-full bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
