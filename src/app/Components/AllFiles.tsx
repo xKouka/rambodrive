@@ -1,11 +1,10 @@
-// src/app/Components/AllFilesTable.tsx
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { client } from "../supabase-client"; // Asegúrate que la ruta sea correcta
-import { useUser } from "../contexts/UserContext"; // Asumiendo que este hook devuelve { user }
+import { client } from "../supabase-client";
+import { useUser } from "../contexts/UserContext";
+import { showConfirmAlert, showErrorAlert, showSuccessAlert } from '../../utils/alerts';
 
-// La interfaz debe coincidir con las columnas de tu tabla 'files'
 interface FileRow {
   id: number;
   file_name: string;
@@ -14,7 +13,6 @@ interface FileRow {
   storage_path: string;
 }
 
-// Tipos para las tarjetas de archivo
 type FileType = "doc" | "excel" | "pdf" | "ppt" | "generic";
 
 export default function AllFilesTable() {
@@ -24,7 +22,6 @@ export default function AllFilesTable() {
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Función para obtener los archivos iniciales desde la BASE DE DATOS
   const fetchFiles = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
@@ -33,10 +30,11 @@ export default function AllFilesTable() {
       .from("files")
       .select("id, file_name, created_at, file_size, storage_path")
       .eq("user_id", user.id)
-      .order('created_at', { ascending: false }); // Ordenar por más reciente
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error("Error al obtener archivos de la BD:", error);
+      showErrorAlert("Error de Carga", "No se pudieron cargar tus archivos. Inténtalo de nuevo más tarde.");
       setAllFiles([]);
     } else {
       setAllFiles(data || []);
@@ -44,60 +42,42 @@ export default function AllFilesTable() {
     setLoading(false);
   }, [user]);
 
-  // Efecto para la carga inicial de archivos
   useEffect(() => {
     if (user) {
       fetchFiles();
     }
   }, [user, fetchFiles]);
 
-  // Efecto para las actualizaciones en TIEMPO REAL
   useEffect(() => {
     if (!user?.id) return;
 
-    // Se crea un canal de comunicación único para este usuario
     const channel = client
       .channel(`public:files:user_id=eq.${user.id}`)
       .on(
         'postgres_changes',
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'files', 
-          filter: `user_id=eq.${user.id}` 
-        },
+        { event: 'INSERT', schema: 'public', table: 'files', filter: `user_id=eq.${user.id}` },
         (payload) => {
           console.log('¡Nuevo archivo detectado!', payload.new);
-          // Añade el nuevo archivo al principio de la lista para que aparezca primero
           setAllFiles((currentFiles) => [payload.new as FileRow, ...currentFiles]);
         }
       )
       .on(
         'postgres_changes',
-        { 
-          event: 'DELETE', 
-          schema: 'public', 
-          table: 'files', 
-          filter: `user_id=eq.${user.id}` 
-        },
+        { event: 'DELETE', schema: 'public', table: 'files', filter: `user_id=eq.${user.id}` },
         (payload) => {
           console.log('¡Archivo eliminado detectado!', payload.old);
-          // Elimina el archivo de la lista localmente
-          setAllFiles((currentFiles) => 
+          setAllFiles((currentFiles) =>
             currentFiles.filter(file => file.id !== (payload.old as { id: number }).id)
           );
         }
       )
       .subscribe();
 
-    // Función de limpieza para cerrar el canal cuando el componente se desmonte
     return () => {
       client.removeChannel(channel);
     };
   }, [user]);
 
-
-  // Cierra el menú contextual al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -109,39 +89,56 @@ export default function AllFilesTable() {
   }, []);
 
   const handleDelete = async (file: FileRow) => {
-    // La lógica de borrado no necesita cambios, ya que el listener de realtime
-    // se encargará de actualizar la UI. La actualización local se mantiene
-    // para una respuesta instantánea.
-    if (!confirm(`¿Estás seguro de que quieres eliminar "${file.file_name}"?`)) {
+    setMenuOpen(null);
+
+    const isConfirmed = await showConfirmAlert(
+      '¿Estás seguro?',
+      `Esta acción eliminará "${file.file_name}" permanentemente.`,
+      'Sí, eliminar'
+    );
+
+    if (!isConfirmed) {
       return;
     }
-    await client.from("files").delete().eq("id", file.id);
-    await client.storage.from("rambodrive").remove([file.storage_path]);
-    setMenuOpen(null);
+
+    try {
+      const { error: dbError } = await client.from("files").delete().eq("id", file.id);
+      if (dbError) throw dbError;
+
+      const { error: storageError } = await client.storage.from("rambodrive").remove([file.storage_path]);
+      if (storageError) throw storageError;
+
+      showSuccessAlert('Eliminado', `El archivo "${file.file_name}" ha sido eliminado.`);
+
+    } catch (error) {
+      console.error("Error al eliminar el archivo:", error);
+      showErrorAlert('Error', 'No se pudo eliminar el archivo. Por favor, inténtalo de nuevo.');
+    }
   };
 
   const handleDownload = async (storagePath: string) => {
-    const { data, error } = await client.storage.from("rambodrive").createSignedUrl(storagePath, 60);
-    if (error) {
-      alert("No se pudo generar el enlace de descarga.");
-      return;
-    }
-    window.open(data.signedUrl, "_blank");
     setMenuOpen(null);
-  };
+    try {
+      const { data, error } = await client.storage.from("rambodrive").createSignedUrl(storagePath, 60); // 60 segundos de validez
+      if (error) throw error;
 
-  // --- Funciones de ayuda para las tarjetas ---
+      window.open(data.signedUrl, "_blank");
+    } catch (error) {
+      console.error("Error al generar enlace de descarga:", error);
+      // 4. Reemplazamos el alert() por nuestra alerta de error
+      showErrorAlert("Error de Descarga", "No se pudo generar el enlace. Inténtalo de nuevo.");
+    }
+  };
 
   const getFileType = (fileName: string): FileType => {
     const ext = fileName.split(".").pop()?.toLowerCase();
-    // --- CORRECCIÓN AQUÍ: Se añadieron las extensiones de software libre ---
     if (ext === "doc" || ext === "docx" || ext === "odt") return "doc";
     if (ext === "xls" || ext === "xlsx" || ext === "ods") return "excel";
     if (ext === "pdf") return "pdf";
     if (ext === "ppt" || ext === "pptx" || ext === "odp") return "ppt";
     return "generic";
   };
-  
+
   const getFileIconProps = (type: FileType) => {
     switch (type) {
       case 'doc': return { iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bgColor: "bg-blue-100", textColor: "text-blue-600" };
@@ -162,7 +159,7 @@ export default function AllFilesTable() {
           {allFiles.length > 0 ? allFiles.map((file) => {
             const fileType = getFileType(file.file_name);
             const { iconPath, bgColor, textColor } = getFileIconProps(fileType);
-            
+
             return (
               <div key={file.id} className="bg-gray-800 rounded-lg shadow-lg hover:shadow-blue-500/20 transition-shadow duration-300 group">
                 <div className={`h-32 flex items-center justify-center ${bgColor} rounded-t-lg`}>
@@ -177,8 +174,7 @@ export default function AllFilesTable() {
                   <p className="text-xs text-gray-400">
                     {new Date(file.created_at).toLocaleDateString()}
                   </p>
-                  
-                  {/* Botón de menú */}
+
                   <div className="absolute top-2 right-2">
                     <button onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)} className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>

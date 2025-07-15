@@ -1,37 +1,37 @@
-// src/app/Components/FolderExplorer.tsx
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { client } from '../supabase-client';
 import { useUser } from '../contexts/UserContext';
 import { AppView } from '../Dashboard/page'; // Asegúrate que la ruta a tu página sea correcta
+import { showSuccessAlert, showErrorAlert, showConfirmAlert } from '../../utils/alerts';
 
 // --- 1. Interfaces y Tipos (Centralizados) ---
 interface Profile {
-  id: string;
-  username: string;
-  full_name: string | null;
+    id: string;
+    username: string;
+    full_name: string | null;
 }
 export interface ContactRelation {
-  id: number;
-  alias: string | null;
-  avatar_color: string | null;
-  contact: Profile;
+    id: number;
+    alias: string | null;
+    avatar_color: string | null;
+    contact: Profile;
 }
 interface DbFile {
-  id: number;
-  file_name: string;
-  storage_path: string;
-  created_at: string;
-  file_size: number;
+    id: number;
+    file_name: string;
+    storage_path: string;
+    created_at: string;
+    file_size: number;
 }
 interface DetailedShare {
-  folder_name: string;
-  owner_id: string;
-  owner_name: string | null;
-  shared_with_id: string;
-  shared_with_name: string | null;
-  share_direction: 'inbound' | 'outbound';
+    folder_name: string;
+    owner_id: string;
+    owner_name: string | null;
+    shared_with_id: string;
+    shared_with_name: string | null;
+    share_direction: 'inbound' | 'outbound';
 }
 type FileType = "doc" | "excel" | "pdf" | "ppt" | "generic";
 
@@ -47,39 +47,22 @@ const getFileType = (fileName: string): FileType => {
 
 const getFileIconProps = (type: FileType) => {
     switch (type) {
-      case 'doc': return { iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bgColor: "bg-blue-100", textColor: "text-blue-600" };
-      case 'excel': return { iconPath: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bgColor: "bg-green-100", textColor: "text-green-600" };
-      case 'pdf': return { iconPath: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z", bgColor: "bg-red-100", textColor: "text-red-600" };
-      case 'ppt': return { iconPath: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z", bgColor: "bg-yellow-100", textColor: "text-yellow-600" };
-      default: return { iconPath: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z", bgColor: "bg-gray-100", textColor: "text-gray-600" };
+        case 'doc': return { iconPath: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bgColor: "bg-blue-100", textColor: "text-blue-600" };
+        case 'excel': return { iconPath: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", bgColor: "bg-green-100", textColor: "text-green-600" };
+        case 'pdf': return { iconPath: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z", bgColor: "bg-red-100", textColor: "text-red-600" };
+        case 'ppt': return { iconPath: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z", bgColor: "bg-yellow-100", textColor: "text-yellow-600" };
+        default: return { iconPath: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z", bgColor: "bg-gray-100", textColor: "text-gray-600" };
     }
-};
-
-// Hook personalizado para cerrar menús al hacer clic fuera
-const useClickOutside = (handler: () => void) => {
-    const domNode = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        const maybeHandler = (event: MouseEvent) => {
-            if (domNode.current && !domNode.current.contains(event.target as Node)) {
-                handler();
-            }
-        };
-        document.addEventListener("mousedown", maybeHandler);
-        return () => {
-            document.removeEventListener("mousedown", maybeHandler);
-        };
-    }, [handler]);
-    return domNode;
 };
 
 // --- 3. Componentes de UI (Reutilizables) ---
 
-function FolderCard({ name, description, onCardClick, onMenuClick, isShared = false }: { 
-    name: string, 
+function FolderCard({ name, description, onCardClick, onMenuClick, isShared = false }: {
+    name: string,
     description?: string,
-    onCardClick: () => void, 
-    onMenuClick: (e: React.MouseEvent) => void, 
-    isShared?: boolean 
+    onCardClick: () => void,
+    onMenuClick: (e: React.MouseEvent) => void,
+    isShared?: boolean
 }) {
     return (
         <div className="bg-gray-800 rounded-xl shadow-lg hover:shadow-blue-500/20 transition-all relative group flex flex-col">
@@ -99,9 +82,9 @@ function FolderCard({ name, description, onCardClick, onMenuClick, isShared = fa
     );
 }
 
-function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: { 
-    folder: string; 
-    ownerId: string; 
+function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
+    folder: string;
+    ownerId: string;
     onBack: () => void;
     contacts: ContactRelation[];
     onShare: (folderName: string, contact: ContactRelation) => void;
@@ -118,35 +101,42 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
     const fetchFiles = useCallback(async () => {
         if (!ownerId || !folder) return;
         const { data, error } = await client.from('files').select('id, file_name, storage_path, created_at, file_size').eq('user_id', ownerId).like('storage_path', `${ownerId}/${folder}/%`);
-        if (error) { console.error("Error cargando archivos:", error); return; }
+        if (error) { showErrorAlert("Error", "No se pudieron cargar los archivos."); console.error("Error cargando archivos:", error); return; }
         setFiles(data || []);
     }, [ownerId, folder]);
 
     useEffect(() => { fetchFiles(); }, [fetchFiles]);
-    
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setMenuOpen(null);
-            }
-            if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
-                setShareMenuOpen(false);
-            }
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(null);
+            if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) setShareMenuOpen(false);
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const handleDownload = async (storagePath: string) => {
+        setMenuOpen(null);
         const { data, error } = await client.storage.from('rambodrive').createSignedUrl(storagePath, 60);
-        if (error || !data?.signedUrl) { alert('Error al generar el enlace de descarga'); return; }
+        if (error || !data?.signedUrl) { showErrorAlert('Error', 'No se pudo generar el enlace de descarga.'); return; }
         window.open(data.signedUrl, '_blank');
     };
 
     const handleDelete = async (file: DbFile) => {
-        await client.from('files').delete().eq('id', file.id);
-        await client.storage.from('rambodrive').remove([file.storage_path]);
-        fetchFiles();
+        setMenuOpen(null);
+        const isConfirmed = await showConfirmAlert('¿Eliminar archivo?', `Se eliminará "${file.file_name}" permanentemente.`, 'Sí, eliminar');
+        if (!isConfirmed) return;
+
+        try {
+            await client.from('files').delete().eq('id', file.id);
+            await client.storage.from('rambodrive').remove([file.storage_path]);
+            showSuccessAlert('Eliminado', `El archivo "${file.file_name}" ha sido eliminado.`);
+            fetchFiles();
+        } catch (error) {
+            showErrorAlert('Error', 'No se pudo eliminar el archivo.');
+            console.error(error);
+        }
     };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,26 +144,19 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
         if (!file || !user?.id) return;
         setUploading(true);
         const path = `${ownerId}/${folder}/${file.name}`;
-        const { error: uploadError } = await client.storage.from('rambodrive').upload(path, file, { upsert: true });
-        if (uploadError) {
-            alert('Error al subir archivo');
-            setUploading(false);
-            return;
-        }
-        const { error: insertError } = await client.from('files').insert({
-            file_name: file.name,
-            file_size: file.size,
-            mime_type: file.type,
-            storage_path: path,
-            user_id: ownerId
-        });
-        if (insertError) {
-            alert(`Error al guardar el archivo: ${insertError.message}`);
-            await client.storage.from('rambodrive').remove([path]);
-        } else {
+        try {
+            const { error: uploadError } = await client.storage.from('rambodrive').upload(path, file, { upsert: true });
+            if (uploadError) throw uploadError;
+            const { error: insertError } = await client.from('files').insert({ file_name: file.name, file_size: file.size, mime_type: file.type, storage_path: path, user_id: ownerId });
+            if (insertError) throw insertError;
+            showSuccessAlert('¡Éxito!', `El archivo "${file.name}" se ha subido.`);
             fetchFiles();
+        } catch (error) {
+            showErrorAlert('Error al subir', 'No se pudo completar la subida del archivo.');
+            console.error(error);
+        } finally {
+            setUploading(false);
         }
-        setUploading(false);
     };
 
     return (
@@ -185,15 +168,13 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
                 <div className="flex gap-2 items-center">
                     {isOwner && (
                         <div className="relative">
-                            <button onClick={() => setShareMenuOpen(!shareMenuOpen)} className="text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-medium">
-                                Compartir
-                            </button>
+                            <button onClick={() => setShareMenuOpen(!shareMenuOpen)} className="text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-medium">Compartir</button>
                             {shareMenuOpen && (
                                 <div ref={shareMenuRef} className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
                                     <div className="p-2 border-b text-xs text-gray-500">Compartir con...</div>
                                     {contacts.length > 0 ? (
                                         contacts.map(contact => (
-                                            <button key={contact.id} onClick={() => onShare(folder, contact)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <button key={contact.id} onClick={() => { onShare(folder, contact); setShareMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                                 {contact.alias || contact.contact.full_name || contact.contact.username}
                                             </button>
                                         ))
@@ -208,12 +189,9 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
                         {uploading ? 'Subiendo...' : 'Subir archivo'}
                         <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
                     </label>
-                    <button onClick={onBack} className="text-sm text-white bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg font-medium">
-                        ⬅ Volver
-                    </button>
+                    <button onClick={onBack} className="text-sm text-white bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg font-medium">⬅ Volver</button>
                 </div>
             </div>
-
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {files.map((file) => {
                     const fileType = getFileType(file.file_name);
@@ -233,7 +211,7 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
                                     {menuOpen === file.id && (
                                         <div ref={menuRef} className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                                             <button onClick={() => handleDownload(file.storage_path)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Descargar</button>
-                                            <button onClick={() => handleDelete(file)} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Eliminar</button>
+                                            {isOwner && <button onClick={() => handleDelete(file)} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Eliminar</button>}
                                         </div>
                                     )}
                                 </div>
@@ -247,11 +225,10 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
     );
 }
 
-
 // --- 4. Componente Principal (Orquestador) ---
 interface FolderExplorerProps {
-  view: AppView;
-  onFolderSelect: (folderName: string | null) => void;
+    view: AppView;
+    onFolderSelect: (folderName: string | null) => void;
 }
 
 export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerProps) {
@@ -276,7 +253,7 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
     const fetchFolders = useCallback(async () => {
         if (!user?.id) return;
         const { data, error } = await client.storage.from('rambodrive').list(user.id, { limit: 100 });
-        if (error) { console.error('Error al obtener carpetas:', error.message); return; }
+        if (error) { showErrorAlert('Error', 'No se pudieron cargar las carpetas.'); console.error('Error al obtener carpetas:', error.message); return; }
         const folderNames = data?.filter(item => item.id === null).map(item => item.name) || [];
         setFolders(folderNames);
     }, [user]);
@@ -286,19 +263,29 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
         setLoading(true);
         const { data, error } = await client.rpc('get_all_my_shares', { p_user_id: user.id });
         if (error) {
+            showErrorAlert('Error', 'No se pudieron cargar las carpetas compartidas.');
             console.error("Error fetching all shares:", error);
         } else {
             setAllShares(data || []);
         }
         setLoading(false);
     }, [user]);
-    
+
     const fetchContacts = useCallback(async () => {
         if (!user) return;
         const { data, error } = await client.from('contacts').select(`id, alias, avatar_color, contact:contact_id ( id, username, full_name )`).eq('owner_id', user.id);
-        if (error) { console.error("Error cargando contactos:", error); return; }
+        if (error) { showErrorAlert('Error', 'No se pudieron cargar los contactos.'); console.error("Error cargando contactos:", error); return; }
         if (data) {
-            const validData = (data as any[]).filter(item => item.contact && typeof item.contact === 'object').map(item => ({ id: item.id, alias: item.alias, avatar_color: item.avatar_color, contact: item.contact }));
+            const validData: ContactRelation[] = data
+                .filter((item): item is typeof item & { contact: Profile } =>
+                    item.contact !== null && typeof item.contact === 'object'
+                )
+                .map(item => ({
+                    id: item.id,
+                    alias: item.alias,
+                    avatar_color: item.avatar_color,
+                    contact: item.contact
+                }));
             setContacts(validData);
         }
     }, [user]);
@@ -312,7 +299,7 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
             fetchAllShares();
         }
     }, [view, fetchFolders, fetchAllShares, fetchContacts]);
-    
+
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -330,21 +317,32 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
         const folderPath = `${user.id}/${newFolderName}/.placeholder`;
         setLoading(true);
         const { error } = await client.storage.from('rambodrive').upload(folderPath, new Blob(['']), { upsert: false });
-        if (error) { alert('Error al crear la carpeta. Es posible que ya exista.'); } else { setNewFolderName(''); fetchFolders(); }
+        if (error) { showErrorAlert('Error', 'La carpeta ya existe o no se pudo crear.'); } else { showSuccessAlert('Éxito', `Carpeta "${newFolderName}" creada.`); setNewFolderName(''); fetchFolders(); }
         setLoading(false);
     };
 
     const handleDeleteFolder = async (folderName: string) => {
         if (!user?.id) return;
-        if (!confirm(`¿Estás seguro de que quieres eliminar la carpeta "${folderName}" y todo su contenido?`)) return;
-        const { data: files } = await client.storage.from('rambodrive').list(`${user.id}/${folderName}`);
-        const filePathsToDelete = files?.map(file => `${user.id}/${folderName}/${file.name}`) || [];
-        await client.from('files').delete().like('storage_path', `${user.id}/${folderName}/%`);
-        if (filePathsToDelete.length > 0) {
-            await client.storage.from('rambodrive').remove(filePathsToDelete);
+        const isConfirmed = await showConfirmAlert('¿Eliminar Carpeta?', `Se eliminará "${folderName}" y todo su contenido. Esta acción es irreversible.`, 'Sí, eliminar todo');
+        if (!isConfirmed) return;
+
+        try {
+            const { data: files } = await client.storage.from('rambodrive').list(`${user.id}/${folderName}`);
+            const filePathsToDelete = files?.map(file => `${user.id}/${folderName}/${file.name}`) || [];
+            // Borra el placeholder para eliminar la "carpeta" vacía
+            filePathsToDelete.push(`${user.id}/${folderName}/.placeholder`);
+
+            await client.from('files').delete().like('storage_path', `${user.id}/${folderName}/%`);
+            if (filePathsToDelete.length > 0) {
+                await client.storage.from('rambodrive').remove(filePathsToDelete);
+            }
+            showSuccessAlert('Eliminada', `La carpeta "${folderName}" ha sido eliminada.`);
+            fetchFolders();
+            setFolderMenuOpen(null);
+        } catch (error) {
+            showErrorAlert('Error', 'No se pudo eliminar la carpeta.');
+            console.error(error);
         }
-        fetchFolders();
-        setFolderMenuOpen(null);
     };
 
     const handleRenameFolder = async (oldName: string) => {
@@ -353,41 +351,48 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
             setRenamingFolder(null);
             return;
         }
-        const { data: filesToMove } = await client.storage.from('rambodrive').list(`${user.id}/${oldName}`);
-        for (const file of filesToMove || []) {
-            await client.storage.from('rambodrive').move(`${user.id}/${oldName}/${file.name}`, `${user.id}/${newName}/${file.name}`);
-        }
-        const { data: dbFiles } = await client.from('files').select('id, storage_path').like('storage_path', `${user.id}/${oldName}/%`);
-        if (dbFiles) {
-            for (const file of dbFiles) {
-                const newPath = file.storage_path.replace(`${user.id}/${oldName}`, `${user.id}/${newName}`);
-                await client.from('files').update({ storage_path: newPath }).eq('id', file.id);
+
+        try {
+            const { data: filesToMove } = await client.storage.from('rambodrive').list(`${user.id}/${oldName}`);
+            for (const file of filesToMove || []) {
+                await client.storage.from('rambodrive').move(`${user.id}/${oldName}/${file.name}`, `${user.id}/${newName}/${file.name}`);
             }
+            const { data: dbFiles } = await client.from('files').select('id, storage_path').like('storage_path', `${user.id}/${oldName}/%`);
+            if (dbFiles) {
+                for (const file of dbFiles) {
+                    const newPath = file.storage_path.replace(`${user.id}/${oldName}`, `${user.id}/${newName}`);
+                    await client.from('files').update({ storage_path: newPath }).eq('id', file.id);
+                }
+            }
+            showSuccessAlert('Renombrada', `La carpeta se ha renombrado a "${newName}".`);
+            setRenamingFolder(null);
+            fetchFolders();
+        } catch (error) {
+            showErrorAlert('Error', 'No se pudo renombrar la carpeta.');
+            console.error(error);
         }
-        setRenamingFolder(null);
-        fetchFolders();
     };
-    
+
     const handleShareWithContact = async (folderName: string, contact: ContactRelation) => {
         if (!user) return;
         const { error } = await client.from('shares').insert({ folder_name: folderName, owner_id: user.id, shared_with_id: contact.contact.id });
         if (error) {
-            alert(`Error al compartir: ${error.message}`);
+            showErrorAlert('Error', `No se pudo compartir: ${error.message}`);
         } else {
-            alert(`¡Carpeta "${folderName}" compartida con ${contact.alias || contact.contact.full_name}!`);
+            showSuccessAlert('¡Compartido!', `Carpeta "${folderName}" compartida con ${contact.alias || contact.contact.full_name}.`);
         }
         setShareMenuOpen(null);
     };
 
     // --- Lógica de Renderizado ---
     if (selectedFolder) {
-        return <FolderViewer 
-                    folder={selectedFolder.name} 
-                    ownerId={selectedFolder.ownerId} 
-                    onBack={() => handleSetSelectedFolder(null)}
-                    contacts={contacts}
-                    onShare={handleShareWithContact}
-                />;
+        return <FolderViewer
+            folder={selectedFolder.name}
+            ownerId={selectedFolder.ownerId}
+            onBack={() => handleSetSelectedFolder(null)}
+            contacts={contacts}
+            onShare={handleShareWithContact}
+        />;
     }
 
     if (view === 'my_drive') {
@@ -448,18 +453,18 @@ export default function FolderExplorer({ view, onFolderSelect }: FolderExplorerP
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {allShares.length > 0 ? allShares.map((share, index) => {
                             const isOutbound = share.share_direction === 'outbound';
-                            const description = isOutbound 
-                                ? `Para: ${share.shared_with_name || 'Desconocido'}` 
+                            const description = isOutbound
+                                ? `Para: ${share.shared_with_name || 'Desconocido'}`
                                 : `De: ${share.owner_name || 'Desconocido'}`;
-                            
+
                             return (
-                                <FolderCard 
-                                    key={`share-${index}`} 
-                                    name={share.folder_name} 
+                                <FolderCard
+                                    key={`share-${index}`}
+                                    name={share.folder_name}
                                     description={description}
-                                    onCardClick={() => handleSetSelectedFolder({ name: share.folder_name, ownerId: share.owner_id })} 
+                                    onCardClick={() => handleSetSelectedFolder({ name: share.folder_name, ownerId: share.owner_id })}
                                     onMenuClick={(e) => e.stopPropagation()}
-                                    isShared={true} 
+                                    isShared={true}
                                 />
                             );
                         }) : (

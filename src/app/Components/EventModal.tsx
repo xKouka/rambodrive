@@ -4,10 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { EventClickArg, EventInput, DateSelectArg } from '@fullcalendar/core';
 
-// --- AÑADIDO PARA COLORES ---
 const eventColors = ['#3b82f6', '#10b981', '#ef4444', '#f97316', '#8b5cf6'];
 const defaultColor = eventColors[0];
-// --- FIN DE AÑADIDO ---
 
 interface EventModalProps {
     isOpen: boolean;
@@ -24,7 +22,7 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
     const [allDay, setAllDay] = useState(false);
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
-    const [color, setColor] = useState(defaultColor); // --- AÑADIDO PARA COLORES ---
+    const [color, setColor] = useState(defaultColor);
 
     const isCreating = !('event' in (eventInfo || {}));
 
@@ -42,7 +40,7 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
                 setTitle(event.title);
                 setDescription(event.extendedProps.description || '');
                 setAllDay(isAllDayEvent);
-                setColor(event.backgroundColor || defaultColor); // --- AÑADIDO PARA COLORES ---
+                setColor(event.backgroundColor || defaultColor);
 
                 const start = event.start ? new Date(event.start) : new Date();
                 const end = event.end ? new Date(event.end) : start;
@@ -52,7 +50,7 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
                 setTitle('');
                 setDescription('');
                 setAllDay(eventInfo.allDay);
-                setColor(defaultColor); // --- AÑADIDO PARA COLORES ---
+                setColor(defaultColor);
                 setStartTime(formatDateForInput(eventInfo.startStr, eventInfo.allDay));
                 setEndTime(formatDateForInput(eventInfo.endStr, eventInfo.allDay));
             }
@@ -73,7 +71,7 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
             start: startTime,
             end: endTime,
             allDay,
-            color, // --- AÑADIDO PARA COLORES ---
+            color,
         };
         onSave(eventData);
     };
@@ -108,8 +106,6 @@ export default function EventModal({ isOpen, onClose, onSave, onDelete, eventInf
                         <input id="all_day" type="checkbox" checked={allDay} onChange={e => setAllDay(e.target.checked)} disabled={!canEdit} className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 disabled:opacity-50" />
                         <label htmlFor="all_day" className="ml-2 block text-sm">Todo el día</label>
                     </div>
-
-                    {/* --- BLOQUE AÑADIDO PARA COLORES --- */}
                     <div className="pt-2">
                         <label className="block text-sm font-medium text-gray-300 mb-2">Color del Evento</label>
                         <div className="flex gap-3">

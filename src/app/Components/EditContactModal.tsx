@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { client } from '../supabase-client';
-import { ContactRelation } from './Contacts'; // Importamos el tipo desde Contacts
+import { ContactRelation } from './Contacts';
+import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 interface EditContactModalProps {
     isOpen: boolean;
@@ -40,10 +41,13 @@ export default function EditContactModal({ isOpen, onClose, onContactUpdated, co
                 .eq('id', contactToEdit.id);
 
             if (error) throw error;
+
+            showSuccessAlert('¡Actualizado!', 'El contacto se ha guardado correctamente.');
             onContactUpdated();
             onClose();
+
         } catch (error) {
-            alert("Error al actualizar el contacto.");
+            showErrorAlert("Error", "No se pudo actualizar el contacto.");
             console.error(error);
         } finally {
             setLoading(false);

@@ -1,4 +1,3 @@
-// src/app/Components/UploadModal.tsx
 'use client';
 
 import { useState } from "react";

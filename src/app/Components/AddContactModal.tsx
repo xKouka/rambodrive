@@ -3,9 +3,20 @@
 import React, { useState } from 'react';
 import { client } from '../supabase-client';
 import { useUser } from '../contexts/UserContext';
+// 1. Importa tus nuevas funciones de alerta
+import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
-interface AddContactModalProps { isOpen: boolean; onClose: () => void; onContactAdded: () => void; }
-interface Profile { id: string; username: string; full_name: string | null; }
+interface AddContactModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onContactAdded: () => void;
+}
+
+interface Profile {
+    id: string;
+    username: string;
+    full_name: string | null;
+}
 
 const avatarColors = ['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-amber-500', 'bg-red-500', 'bg-indigo-500'];
 
@@ -16,26 +27,31 @@ export default function AddContactModal({ isOpen, onClose, onContactAdded }: Add
     const [selectedColor, setSelectedColor] = useState(avatarColors[0]);
     const [foundProfile, setFoundProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
 
     const handleSearch = async () => {
         if (!searchEmail.trim()) return;
-        setLoading(true); setMessage(''); setFoundProfile(null);
+        setLoading(true);
+        setFoundProfile(null);
+
         try {
-            // CAMBIO: Se busca por 'username' en lugar de 'email'
             const { data, error } = await client.from('profiles').select('*').eq('username', searchEmail.trim()).single();
             if (error && error.code !== 'PGRST116') throw error;
+
             if (data) {
-                if (data.id === user?.id) setMessage("No puedes añadirte a ti mismo.");
-                else setFoundProfile(data);
+                if (data.id === user?.id) {
+                    showErrorAlert("Acción no permitida", "No puedes añadirte a ti mismo como contacto.");
+                } else {
+                    setFoundProfile(data);
+                }
             } else {
-                setMessage('Usuario no encontrado.');
+                showErrorAlert("Búsqueda sin resultados", "No se encontró ningún usuario con ese email.");
             }
         } catch (error) {
-            setMessage('Error al buscar el usuario.');
-            console.log(error)
+            showErrorAlert('Error', 'Ocurrió un problema al buscar el usuario.');
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
-        finally { setLoading(false); }
     };
 
     const handleAddContact = async (e: React.FormEvent) => {
@@ -50,21 +66,23 @@ export default function AddContactModal({ isOpen, onClose, onContactAdded }: Add
                 alias: alias.trim() || null,
                 avatar_color: selectedColor,
             });
+
             if (error) throw error;
 
+            showSuccessAlert('¡Éxito!', 'El contacto ha sido añadido correctamente.');
             onContactAdded();
             handleClose();
 
         } catch (error) {
             if (error && typeof error === 'object' && 'code' in error) {
                 if (error.code === '23505') {
-                    setMessage("Ya tienes a este usuario en tus contactos.");
+                    showErrorAlert("Contacto duplicado", "Ya tienes a este usuario en tu lista de contactos.");
                 } else {
-                    alert('Hubo un error al guardar el contacto.');
+                    showErrorAlert('Error', 'Hubo un error al guardar el contacto.');
                     console.error("Error al añadir contacto:", error);
                 }
             } else {
-                alert('Hubo un error inesperado al guardar el contacto.');
+                showErrorAlert('Error inesperado', 'Hubo un error inesperado al guardar el contacto.');
                 console.error("Error al añadir contacto:", error);
             }
         } finally {
@@ -73,7 +91,10 @@ export default function AddContactModal({ isOpen, onClose, onContactAdded }: Add
     };
 
     const handleClose = () => {
-        setSearchEmail(''); setAlias(''); setFoundProfile(null); setMessage(''); onClose();
+        setSearchEmail('');
+        setAlias('');
+        setFoundProfile(null);
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -96,7 +117,6 @@ export default function AddContactModal({ isOpen, onClose, onContactAdded }: Add
                     <form onSubmit={handleAddContact}>
                         <div className="bg-gray-700/50 p-4 rounded-lg mb-4">
                             <p className="text-sm text-gray-300">Usuario encontrado:</p>
-                            {/* CAMBIO: Se usa .username como fallback */}
                             <p className="font-bold text-lg">{foundProfile.full_name || foundProfile.username}</p>
                         </div>
                         <div className="mb-4">
@@ -117,7 +137,6 @@ export default function AddContactModal({ isOpen, onClose, onContactAdded }: Add
                         </div>
                     </form>
                 )}
-                {message && <p className="text-center text-yellow-400 text-sm mt-4">{message}</p>}
             </div>
         </div>
     );

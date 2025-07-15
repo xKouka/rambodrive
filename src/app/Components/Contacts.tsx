@@ -5,6 +5,7 @@ import { client } from '../supabase-client';
 import { useUser } from '../contexts/UserContext';
 import AddContactModal from './AddContactModal';
 import EditContactModal from './EditContactModal';
+import { showConfirmAlert, showErrorAlert, showSuccessAlert } from '../../utils/alerts';
 
 // --- Interfaces y Tipos ---
 interface Profile {
@@ -96,7 +97,7 @@ export default function Contacts() {
                         alias: d.alias,
                         avatar_color: d.avatar_color,
                         contact: d.contact,
-                    })) as unknown as ContactRelation[]; // Se añade la doble conversión aquí
+                    })) as unknown as ContactRelation[];
 
                 setContacts(validContacts);
             } else {
@@ -105,6 +106,7 @@ export default function Contacts() {
 
         } catch (error) {
             console.error("Error cargando contactos:", error);
+            showErrorAlert("Error de Carga", "No se pudieron cargar tus contactos.");
         } finally {
             setLoading(false);
         }
@@ -115,13 +117,22 @@ export default function Contacts() {
     }, [fetchContacts]);
 
     const handleDeleteContact = async (contactId: number, contactName: string) => {
-        if (window.confirm(`¿Estás seguro de que quieres eliminar a ${contactName} de tus contactos?`)) {
+        const isConfirmed = await showConfirmAlert(
+            '¿Eliminar Contacto?',
+            `¿Estás seguro de que quieres eliminar a ${contactName} de tus contactos?`,
+            'Sí, eliminar'
+        );
+
+        if (isConfirmed) {
             try {
                 const { error } = await client.from('contacts').delete().eq('id', contactId);
                 if (error) throw error;
+
+                showSuccessAlert('¡Eliminado!', `${contactName} ha sido eliminado de tus contactos.`);
                 setContacts(prevContacts => prevContacts.filter(c => c.id !== contactId));
+
             } catch (error) {
-                alert("Error al eliminar el contacto.");
+                showErrorAlert("Error", "No se pudo eliminar el contacto.");
                 console.error(error);
             }
         }

@@ -1,11 +1,12 @@
-// src/app/Components/DashboardHeader.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { client } from '../supabase-client'; // Corregido para una ruta relativa más probable
-import { useUser } from '../contexts/UserContext'; // Corregido para una ruta relativa más probable
+import { client } from '../supabase-client';
+import { useUser } from '../contexts/UserContext';
+// 1. Importamos las alertas necesarias
+import { showConfirmAlert, showErrorAlert } from '../../utils/alerts';
 
 export default function DashboardHeader() {
     const { user } = useUser();
@@ -14,16 +15,24 @@ export default function DashboardHeader() {
     const menuRef = useRef<HTMLDivElement>(null);
 
     const handleSignOut = async () => {
-        const { error } = await client.auth.signOut();
-        if (error) {
-            alert(`Error al cerrar sesión: ${error.message}`);
-        } else {
-            // Redirige al login después de cerrar sesión
-            router.push('/Login'); 
+        setIsMenuOpen(false); // Cerramos el menú primero
+
+        const isConfirmed = await showConfirmAlert(
+            '¿Cerrar Sesión?',
+            '¿Estás seguro de que quieres cerrar tu sesión?',
+            'Sí, cerrar sesión'
+        );
+
+        if (isConfirmed) {
+            const { error } = await client.auth.signOut();
+            if (error) {
+                showErrorAlert('Error', `No se pudo cerrar la sesión: ${error.message}`);
+            } else {
+                router.push('/Login');
+            }
         }
     };
 
-    // Cierra el menú si se hace clic fuera de él
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -36,7 +45,6 @@ export default function DashboardHeader() {
         };
     }, [menuRef]);
 
-    // Obtiene la inicial del email del usuario
     const userInitial = user?.email ? user.email.charAt(0).toUpperCase() : 'U';
 
     return (
@@ -50,14 +58,11 @@ export default function DashboardHeader() {
                     <h1 className="text-2xl font-medium text-white">RamboDrive</h1>
                 </div>
 
-                {/* --- SECCIÓN DE PERFIL ACTUALIZADA --- */}
                 <div className="relative">
-                    {/* Avatar de Usuario */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className="bg-blue-600 text-white rounded-full h-10 w-10 flex items-center justify-center text-lg font-semibold hover:bg-blue-700 transition"
                     >
-                        {/* --- CORRECCIÓN AQUÍ --- */}
                         <span className="font-medium">{userInitial}</span>
                     </button>
 
