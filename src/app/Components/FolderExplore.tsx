@@ -184,32 +184,30 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
                 </h3>
                 <div className="flex gap-2 items-center">
                     {isOwner && (
-                        <>
-                            <div className="relative">
-                                <button onClick={() => setShareMenuOpen(!shareMenuOpen)} className="text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-medium">
-                                    Compartir
-                                </button>
-                                {shareMenuOpen && (
-                                    <div ref={shareMenuRef} className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
-                                        <div className="p-2 border-b text-xs text-gray-500">Compartir con...</div>
-                                        {contacts.length > 0 ? (
-                                            contacts.map(contact => (
-                                                <button key={contact.id} onClick={() => onShare(folder, contact)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    {contact.alias || contact.contact.full_name || contact.contact.username}
-                                                </button>
-                                            ))
-                                        ) : (
-                                            <div className="px-4 py-3 text-sm text-gray-500">No tienes contactos.</div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                            <label className="bg-green-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-green-500 text-sm font-medium">
-                                {uploading ? 'Subiendo...' : 'Subir archivo'}
-                                <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
-                            </label>
-                        </>
+                        <div className="relative">
+                            <button onClick={() => setShareMenuOpen(!shareMenuOpen)} className="text-sm text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg font-medium">
+                                Compartir
+                            </button>
+                            {shareMenuOpen && (
+                                <div ref={shareMenuRef} className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                                    <div className="p-2 border-b text-xs text-gray-500">Compartir con...</div>
+                                    {contacts.length > 0 ? (
+                                        contacts.map(contact => (
+                                            <button key={contact.id} onClick={() => onShare(folder, contact)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {contact.alias || contact.contact.full_name || contact.contact.username}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-4 py-3 text-sm text-gray-500">No tienes contactos.</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     )}
+                    <label className="bg-green-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-green-500 text-sm font-medium">
+                        {uploading ? 'Subiendo...' : 'Subir archivo'}
+                        <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
+                    </label>
                     <button onClick={onBack} className="text-sm text-white bg-gray-600 hover:bg-gray-500 px-3 py-1.5 rounded-lg font-medium">
                         ⬅ Volver
                     </button>
@@ -228,19 +226,17 @@ function FolderViewer({ folder, ownerId, onBack, contacts, onShare }: {
                             <div className="p-3 relative">
                                 <h3 className="font-medium text-white text-sm whitespace-nowrap overflow-hidden text-ellipsis" title={file.file_name}>{file.file_name}</h3>
                                 <p className="text-xs text-gray-400">{new Date(file.created_at).toLocaleDateString()}</p>
-                                {isOwner && (
-                                    <div className="absolute top-2 right-2">
-                                        <button onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)} className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-                                        </button>
-                                        {menuOpen === file.id && (
-                                            <div ref={menuRef} className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-20">
-                                                <button onClick={() => handleDownload(file.storage_path)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Descargar</button>
-                                                <button onClick={() => handleDelete(file)} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Eliminar</button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <div className="absolute top-2 right-2">
+                                    <button onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)} className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                                    </button>
+                                    {menuOpen === file.id && (
+                                        <div ref={menuRef} className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                                            <button onClick={() => handleDownload(file.storage_path)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Descargar</button>
+                                            <button onClick={() => handleDelete(file)} className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Eliminar</button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     );
