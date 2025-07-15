@@ -16,13 +16,6 @@
 
 ---
 
-## 📸 Captura de pantalla
-
-<!-- Puedes subir tu propia imagen a /public y actualizar este enlace -->
-![Vista del explorador de archivos](./public/preview-drive-ui.png) Esta parte es de ejemplo, poner captura del Software.
-
----
-
 ## 📦 Instalación
 
 ### 1. Clonar el repositorio
@@ -62,12 +55,6 @@ Requisitos:
 - Activar Row Level Security (RLS) para las tablas con políticas que limiten el acceso por usuario autenticado
 
 - (Puedes extender esta sección con comandos SQL si los defines en el archivo schema.sql.)
-
----
-
-# 📁 Estructura del proyecto
-
-Se las dejo a ustedes que la agregen
 
 ---
 
